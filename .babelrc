@@ -1,0 +1,21 @@
+{
+  "presets": [
+    [
+      "@babel/env",
+      {
+        "modules": false,
+        "targets": {
+          "browsers": ["> 1%", "last 2 versions", "ie > 8"]
+        },
+        "useBuiltIns": "usage", // 使用内置polyfill
+        "corejs": {
+          // babel 7中不推荐使用@babel/polyfill，而是使用core-js,在配置useBuiltIns字段后，需要指定配套的core-js版本为2或3(指定为3即可)
+          "version": 3,
+          "proposals": true // 将对corejs支持的提案语法添加polyfill支持
+        }
+      }
+    ]
+  ],
+  // 用于转换类属性用
+  "plugins": ["@babel/plugin-proposal-class-properties"]
+}
