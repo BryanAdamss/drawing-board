@@ -1,5 +1,5 @@
 {
-  "name": "drawing-board",
+  "name": "@bryanadamss/drawing-board",
   "version": "1.0.1",
   "description": "canvas绘图板，提供绘制、撤销、旋转、下载等功能",
   "main": "dist/drawing-board.es.js",
@@ -13,11 +13,11 @@
     "build": "rollup --config rollup.config.js",
     "release": "standard-version",
     "release:first": "npm run release --first-release",
-    "publishToNpm": "git push --follow-tags origin master && npm publish"
+    "publishToNpm": "git push --follow-tags origin master && npm publish --access=public"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/BryanAdamss/drawing-board.git"
+    "url": "git+https://github.com/BryanAdamss/drawing-board.git"
   },
   "keywords": [
     "canvas",
@@ -37,5 +37,10 @@
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "standard-version": "^7.0.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/BryanAdamss/drawing-board/issues"
+  },
+  "homepage": "https://github.com/BryanAdamss/drawing-board#readme",
+  "dependencies": {}
 }
