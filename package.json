@@ -14,7 +14,7 @@
     "build": "npm run clean && rollup --config rollup.config.js",
     "release": "standard-version",
     "release:first": "npm run release --first-release",
-    "publish2Npm": "git push --follow-tags origin master && npm run setNpmOrigin && npm publish --access=public"
+    "publish2Npm": "npm run setNpmOrigin && git push --follow-tags origin master &&  && npm publish --access=public"
   },
   "repository": {
     "type": "git",
