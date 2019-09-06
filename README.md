@@ -173,6 +173,9 @@ defaultOptions={
 
 
 ## Changelog
+
+[changelog](https://github.com/BryanAdamss/drawing-board/blob/master/CHANGELOG.md)
+
 Detailed changes for each release are documented in the [release notes](https://github.com/BryanAdamss/drawing-board/releases).
 
 ## License
