@@ -17,7 +17,7 @@ npm i @bryanadamss/drawing-board
 ```
 or
 ```javascript
-<script src="https://unpkg.com/@bryanadamss/drawing-board@1.0.2/dist/drawing-board.umd.js"></script>
+<script src="https://unpkg.com/@bryanadamss/drawing-board@latest/dist/drawing-board.umd.js"></script>
 ```
 
 ## Exmaple
