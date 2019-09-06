@@ -118,44 +118,56 @@ onPaintEnd:null// 绘制一笔结束的回调
 this.setSize([null==E?this.container.getBoundingClientRect().width:E,null==b?this.container.getBoundingClientRect().height:b]),this.manualMount=s,this.revokeStack=[],this.MAX_REVOKE_STEPS=this._getLawfulMaxRevokeSteps(g),this.lastPoint=null,this.isPainting=!1,this.interactiveMode=e.INTERACTIVE_MODE_ENUM.includes(u)?u:"mouse",this._handlePointerStartBinded=this._handlePointerStart.bind(this),this._handlePointerMoveBinded=this._handlePointerMove.bind(this),this._handlePointerEndBinded=this._handlePointerEnd.bind(this),this._handlePointerLeaveBinded=this._handlePointerLeave.bind(this),this._handlePointerCancelBinded=this._handlePointerCancel.bind(this),this.eventList=[{pointerType:"mouse",action:"start",name:"mousedown",handler:this._handlePointerStartBinded},{pointerType:"mouse",action:"move",name:"mousemove",handler:this._handlePointerMoveBinded},{pointerType:"mouse",action:"end",name:"mouseup",handler:this._handlePointerEndBinded},{pointerType:"mouse",action:"leave",name:"mouseleave",handler:this._handlePointerLeaveBinded},{pointerType:"touch",action:"start",name:"touchstart",handler:this._handlePointerStartBinded},{pointerType:"touch",action:"move",name:"touchmove",handler:this._handlePointerMoveBinded},{pointerType:"touch",action:"end",name:"touchend",handler:this._handlePointerEndBinded},{pointerType:"touch",action:"cancel",name:"touchcancel",handler:this._handlePointerCancelBinded}],this.setPenStyle({color:p,width:h}),this.bgImgURL=m,this.bgColor=v,this.bgImgRotate=this._getLawfulRotateAngle(f),this.className=d,m?this._getImageFromURL(m).then(function(e){o._bgImgObject=e,o.originalSize=[e.width,e.height],o._drawBg.apply(o,[e].concat(c(o.originalSize)))}).catch(function(e){console.log(e),o._bgImgObject=null}):this._bgImgObject=null,this.onRevokeStackChange=y,this.onPaintEnd=_,this.paintCount=0}/**
 	     * 绑定当前模式对应动作的所有事件
 	     * @param {String} action 动作
+	     * @returns void
 	     */},{key:"_bindCurModeEvents",value:function(e){var t=e.action;if(this.el){var n=this._getPointerType(this.interactiveMode),o={pointerType:n,action:t};this._cleanCurModeEvents(o),this._bindEvent(o)}}/**
 	     * 绑定符合特定条件的事件
 	     * @param {Object} condition 过滤条件
+	     * @returns void
 	     */},{key:"_bindEvent",value:function(){var e=this,t=0<arguments.length&&void 0!==arguments[0]?arguments[0]:{};if(this.el){var n=this._getEventItems(t);n&&n.length&&n.forEach(function(t){var n=t.name,o=t.handler;return e.el.addEventListener(n,o,!1)})}}/**
 	     * 获取模式对应的指针类型
 	     * @param {string} mode 模式
+	     * @returns 类型字符串
 	     */},{key:"_getPointerType",value:function(e){return"both"===e?"":"touch"===e?"touch":"mouse"}/**
 	     * 过滤出符合条件的EventItems
 	     * @param {String} mode 模式
 	     * @param {String} action 动作
+	     * @returns EventItems数组
 	     */},{key:"_getEventItems",value:function(e){var t=e.mode,n=e.action,o=function(){return!0};// 默认全量返回
 return t&&n?o=function(e){return e.mode===t&&e.action===n}:t&&!n?o=function(e){return e.mode===t}:!t&&n&&(o=function(e){return e.action===n}),this.eventList.filter(o)}/**
 	     * 清除当前模式对应动作的所有事件
 	     * @param {String} action 动作
+	     * @returns void
 	     */},{key:"_cleanCurModeEvents",value:function(e){var t=e.action;if(this.el){var n=this._getPointerType(this.interactiveMode);this._cleanEvent({pointerType:n,action:t})}}/**
 	     * 清除符合特定条件的事件
 	     * @param {Object} condition 过滤条件
+	     * @returns void
 	     */},{key:"_cleanEvent",value:function(){var e=this,t=0<arguments.length&&void 0!==arguments[0]?arguments[0]:{};if(this.el){var n=this._getEventItems(t);n&&n.length&&n.forEach(function(t){var n=t.name,o=t.handler;return e.el.removeEventListener(n,o,!1)})}}/**
 	     * 处理指针开始
 	     * @param {MouseEvent|TouchEvent} e 事件对象
+	     * @returns void
 	     */},{key:"_handlePointerStart",value:function(t){console.log("_handlePointerStart"),this.isPainting=!0,this.lastPoint=this._getPointOffset(t),this.ctx&&this._saveImageData("paint",this.paintCount,this.ctx.getImageData(0,0,this.width,this.height)),this._drawCircle(this.lastPoint.x,this.lastPoint.y,this.penWidth/2,this.penColor),this._bindCurModeEvents({action:"move"}),this._bindCurModeEvents({action:"end"}),this._bindCurModeEvents({action:"leave"})}/**
 	     * 处理指针移动
 	     * @param {MouseEvent|TouchEvent} e 事件对象
+	     * @returns void
 	     */},{key:"_handlePointerMove",value:function(t){if(console.log("_handlePointerMove"),!!this.isPainting){var e=this._getPointOffset(t),n=e.x,o=e.y,a=this.lastPoint,r=a.x,i=a.y;this._drawLine(r,i,n,o,this.penWidth,this.penColor),this.lastPoint={x:n,y:o}}}/**
 	     * 处理指针结束
 	     * @param {MouseEvent|TouchEvent} e 事件对象
+	     * @returns void
 	     */},{key:"_handlePointerEnd",value:function(){console.log("_handlePointerEnd"),this.isPainting=!1,this.paintCount++,this.onPaintEnd&&"function"==typeof this.onPaintEnd&&this.onPaintEnd(this.paintCount),console.log("_handlePointerEnd paintCount",this.paintCount),this._cleanCurModeEvents({action:"move"}),this._cleanCurModeEvents({action:"end"}),this._cleanCurModeEvents({action:"leave"})}/**
 	     * 处理指针离开
 	     * @param {MouseEvent|TouchEvent} e 事件对象
+	     * @returns void
 	     */},{key:"_handlePointerLeave",value:function(t){console.log("_handlePointerLeave"),this.isPainting&&this._handlePointerEnd(t)}/**
 	     * 处理指针取消
 	     * @param {MouseEvent|TouchEvent} e 事件对象
+	     * @returns void
 	     */},{key:"_handlePointerCancel",value:function(t){console.log("_handlePointerCancel"),this.isPainting&&this._handlePointerEnd(t)}/**
 	     * 绘制圆形
 	     * @param {Number} x 横轴
 	     * @param {Number} y 纵轴
 	     * @param {Number} radius 半径
 	     * @param {String} color 画笔颜色
+	     * @returns void
 	     */},{key:"_drawCircle",value:function(e,t){var o=2<arguments.length&&void 0!==arguments[2]?arguments[2]:3,a=3<arguments.length&&void 0!==arguments[3]?arguments[3]:"red";this.ctx&&(this.ctx.save(),this.ctx.fillStyle=a,this.ctx.beginPath(),this.ctx.arc(e,t,o,0,360*(n/180),!1),this.ctx.fill(),this.ctx.restore())}/**
 	     * 绘制移动时的直线
 	     * @param {Number} x1 起点x1
@@ -164,56 +176,72 @@ return t&&n?o=function(e){return e.mode===t&&e.action===n}:t&&!n?o=function(e){r
 	     * @param {Number} y2 终点y2
 	     * @param {Number} width 线条宽度
 	     * @param {String} color 颜色
+	     * @returns void
 	     */},{key:"_drawLine",value:function(e,t,n,o){var a=4<arguments.length&&void 0!==arguments[4]?arguments[4]:6,r=5<arguments.length&&void 0!==arguments[5]?arguments[5]:"red";this.ctx&&(this.ctx.save(),this.ctx.strokeStyle=r,this.ctx.lineWidth=a,this.ctx.lineCap="round",this.ctx.lineJoin="round",this.ctx.beginPath(),this.ctx.moveTo(e,t),this.ctx.lineTo(n,o),this.ctx.stroke(),this.ctx.restore())}/**
 	     * 获取事件相对触发对象的偏移值
 	     * @param {MouseEvent|TouchEvent} e 事件对象
+	     * @returns 偏移值对象
 	     */},{key:"_getPointOffset",value:function(t){if(t instanceof MouseEvent)return{x:t.offsetX,y:t.offsetY};if(t instanceof TouchEvent){var e=t.touches,n=t.target,o=e[0],a=o.clientX,r=o.clientY,i=n.getBoundingClientRect(),l=i.left,c=i.top;return{x:a-l,y:r-c}}}/**
 	     * 获取合法的最大撤销步数
 	     * @param {Number} steps 步数
+	     * @returns 合法的最大撤销步数
 	     */},{key:"_getLawfulMaxRevokeSteps",value:function(e){if(0>=e||"number"!=typeof e||isNaN(e))return 10;// 最大撤销步数
 return 50<e?50:e}/**
 	     * 保存当前画布状态
 	     * @param {String} type 类型(绘制paint、清空clear) 默认paint
 	     * @param {Number} paintCount 绘制次数
 	     * @param {ImageData} imageData 像素数据
+	     * @returns void
 	     */},{key:"_saveImageData",value:function(){var e=0<arguments.length&&void 0!==arguments[0]?arguments[0]:"paint",t=1<arguments.length?arguments[1]:void 0,n=2<arguments.length?arguments[2]:void 0;["paint","clear"].includes(e)&&null!=t&&n&&n instanceof ImageData&&(// 保存类型及绘制次数(撤销时使用)
 this.revokeStack.length>=this.MAX_REVOKE_STEPS&&this.revokeStack.shift(),this.revokeStack.push({type:e,paintCount:t,imageData:n}),this.onRevokeStackChange&&"function"==typeof this.onRevokeStackChange&&this.onRevokeStackChange(this.revokeStack),console.log("_saveImageData onRevokeStackChange",this.revokeStack))}/**
 	     * 生成canvas元素
+	     * @returns canvas DOM对象
 	     */},{key:"_makeCanvas",value:function(){return document.createElement("canvas")}/**
 	     * 设置canvas dom尺寸
 	     * @param {Number} width 宽
 	     * @param {Number} height 高
+	     * @returns void
 	     */},{key:"_setDOMSize",value:function(e){var t=l(e,2),n=t[0],o=t[1];null!=n&&this.el&&(this.el.width=n),null!=o&&this.el&&(this.el.height=o)}/**
 	     * 获取绘图上下文
+	     * @returns canvas context
 	     */},{key:"_getCtx",value:function(){return this.el&&this.el.getContext&&this.el.getContext("2d")}/**
 	     * 单步撤销
+	     * @returns void
 	     */},{key:"_revoke",value:function(){if(this.ctx&&this.revokeStack&&this.revokeStack.length){var e=this.revokeStack.pop(),t=e.imageData,n=e.paintCount;this.ctx.putImageData(t,0,0),this.paintCount=n,this.onRevokeStackChange&&"function"==typeof this.onRevokeStackChange&&this.onRevokeStackChange(this.revokeStack),console.log("_revoke onRevokeStackChange",this.revokeStack,n)}}/**
 	     * 从url获取图片
 	     * @param {String} imgURL 图片url，支持base64
+	     * @returns void
 	     */},{key:"_getImageFromURL",value:function(e){return new Promise(function(t,n){if(!/^(http[s]?)|(data:image)/.test(e))return void n(new Error("\u56FE\u7247url\u683C\u5F0F\u4E0D\u6B63\u786E"));var o=new Image;o.src=e,o.onload=function(){t(o)},o.onerror=n,(o.complete||void 0===o.complete)&&(o.src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==",o.src=e)})}/**
 	     * 绘制背景底图
 	     * @param {CanvasImageSource} imgObject 图像对象
 	     * @param {Number} w 宽
 	     * @param {Number} h 高
+	     * @returns void
 	     */},{key:"_drawBg",value:function(e,t,o){if(e&&this.ctx&&this.ctx.drawImage&&t&&o&&!(0>=t)&&!(0>=o)){var a=0,r=t,i=o,l=0===this.bgImgRotate||180===this.bgImgRotate?-this.width/2:-this.height/2,c=0===this.bgImgRotate||180===this.bgImgRotate?-this.height/2:-this.width/2,d=0===this.bgImgRotate||180===this.bgImgRotate?this.width:this.height,s=0===this.bgImgRotate||180===this.bgImgRotate?this.height:this.width;this.ctx.save(),this.ctx.translate(this.width/2,this.height/2),this.ctx.rotate(n/180*this.bgImgRotate),console.log("\u65CB\u8F6C\u53C2\u6570:",0,a,r,i,l,c,d,s,this.bgImgRotate),this.ctx.drawImage(e,0,a,r,i,l,c,d,s),this.ctx.restore()}}/**
 	     * 获取合法角度值(逆时针旋转角度记录为正值，-90度 记录为270；450记录为90,10度记录为0,55度记录为90)
 	     * @param {Number} angle 角度
+	     * @returns 合法角度值
 	     */},{key:"_getLawfulRotateAngle",value:function(e){var t=Math.abs;if(!("number"!=typeof e||isNaN(e))){var n=e%360,o=0>n?n+360:n,a=45<=o%90?90*k(o/90)%360:90*_(o/90)%360;// 可能存在-0
 return t(a)}}/**
 	     * 获取当前画面的绘制次数
+	     * @returns 绘制次数
 	     */},{key:"getPaintCount",value:function(){return this.paintCount}/**
 	     * 旋转
 	     * @param {Boolean} direction 方向 1顺时针 -1逆时针
+	     * @returns void
 	     */},{key:"rotate",value:function(){var e=0<arguments.length&&void 0!==arguments[0]?arguments[0]:1;[1,-1].includes(e)&&(// 重设尺寸，旋转90度，宽高互换即可
 // 因为旋转操作不记录到撤销栈中
 // 旋转时需要清空撤销栈并重置绘制数量，不然会导致撤销状态错误
 this.bgImgRotate=this._getLawfulRotateAngle(this.bgImgRotate+90*e),this.setSize([this.height,this.width]),this._drawBg.apply(this,[this._bgImgObject].concat(c(this.originalSize))),this.paintCount=0,this.revokeStack=[])}/**
 	     * 设置画笔样式(粗细、颜色)
 	     * @param {Object} penStyle 画笔样式
+	     * @returns void
 	     */},{key:"setPenStyle",value:function(e){var t=e.color,n=e.width;t&&"string"==typeof t&&(this.penColor=t),n&&"number"==typeof n&&!isNaN(n)&&0<n&&(this.penWidth=n)}/**
 	     * 撤销
+	     * @returns void
 	     */},{key:"revoke",value:function(){this._revoke()}/**
 	     * 清空绘制
+	     * @returns void
 	     */},{key:"clear",value:function(){this.ctx&&this.el&&(// 清空前保存状态
 // 重置绘制次数
 // 如果有背景图，则需要重新绘制背景图
@@ -221,36 +249,46 @@ this._saveImageData("clear",this.paintCount,this.ctx.getImageData(0,0,this.width
 	     * 设置canvas尺寸
 	     * @param {Number} width 宽
 	     * @param {Number} height 高
+	     * @returns void
 	     */},{key:"setSize",value:function(e){var t=l(e,2),n=t[0],o=t[1];n&&(this.width=n),o&&(this.height=o),this._setDOMSize([n,o])}/**
 	     * 重新初始化
 	     * @param {Object} options 选项
+	     * @returns void
 	     */},{key:"reInit",value:function(e){this._init(this.container,e||this.options),this.mount()}/**
 	     * 销毁
+	     * @returns void
 	     */},{key:"destory",value:function(){this.container.removeChild(this.el),this.el=null,this._bgImgObject=null}/**
 	     * 设置样式名
 	     * @param {String} name 样式类字符串
+	     * @returns void
 	     */},{key:"setClassName",value:function(e){e&&this.el&&(this.el.className=e)}/**
 	     * 挂载
+	     * @returns void
 	     */},{key:"mount",value:function(){this.el||(this.el=this._makeCanvas()),this.ctx||(this.ctx=this._getCtx()),this._setDOMSize([this.width,this.height]),this.setClassName(this.className),this._bindCurModeEvents({action:"start"}),this.container.appendChild(this.el)}/**
 	     * 设置背景
 	     * @param {CanvasImageSource|String} urlOrObject 需要绘制的图像对象(HTMLImageElement、SVGImageElement、HTMLVideoElement、HTMLCanvasElement、ImageBitmap、OffscreenCanvas)或图像url
 	     * @param {Number} originalWidth 原图像宽度。当无法从urlOrObject直接获取原始尺寸时需要手动提供原始尺寸
 	     * @param {Number} originalHeight 原图像高度
+	     * @returns void
 	     */},{key:"setBgImg",value:function(e,t,n){var o=this;// TODO:此处可能需要保存状态
 "string"==typeof e&&/^(http[s]?)|(data:image)/.test(e)?this._getImageFromURL(e).then(function(e){o._bgImgObject=e,o.originalSize=[t||e.width,n||e.height],o._drawBg.apply(o,[e].concat(c(o.originalSize)))}).catch(function(e){console.log(e),o._bgImgObject=null}):(e!==this._bgImgObject&&(this._bgImgObject=e),this.originalSize=[t||this.width,n||this.height],this._drawBg.apply(this,[e].concat(c(this.originalSize))))}/**
 	     * 获取dataURL
 	     * @param {String} type 图片类型
 	     * @param {Number} compressRate 压缩比率
+	     * @returns dataURL
 	     */},{key:"getDataUrl",value:function(){var t=0<arguments.length&&void 0!==arguments[0]?arguments[0]:"png",n=1<arguments.length&&void 0!==arguments[1]?arguments[1]:1;if(this.el&&e.IMG_TYPE_ENUM.includes(t)&&"number"==typeof n&&!isNaN(n)){.3>n&&(n=.3),1<n&&(n=1);var o="image/".concat(t);return this.el.toDataURL(o,n)}}/**
 	     * 获取Blob
 	     * @param {String} type 图片类型
 	     * @param {Number} compressRate 压缩比率
+	     * @returns promise resolved a blob
 	     */},{key:"getBlob",value:function(){var t=this,n=0<arguments.length&&void 0!==arguments[0]?arguments[0]:"png",o=1<arguments.length&&void 0!==arguments[1]?arguments[1]:1;if(this.el&&e.IMG_TYPE_ENUM.includes(n)&&"number"==typeof o&&!isNaN(o)){.3>o&&(o=.3),1<o&&(o=1);var a="image/".concat(n);return new Promise(function(e){t.el.toBlob(e,a,o)})}}/**
 	     * 获取File
 	     * @param {String} type 图片类型
 	     * @param {Number} compressRate 压缩比率
+	     * @returns promise resolved a file
 	     */},{key:"getFile",value:function(){var e=0<arguments.length&&void 0!==arguments[0]?arguments[0]:"drawingBoard",t=1<arguments.length&&void 0!==arguments[1]?arguments[1]:"png",n=2<arguments.length&&void 0!==arguments[2]?arguments[2]:1;return this.getBlob(t,n).then(function(t){return m(t,e)})}/**
 	     * 下载图片
 	     * @param {String} type 图片类型
 	     * @param {Number} compressRate 压缩比率，默认原图输出
+	     * @returns void
 	     */},{key:"download",value:function(){var t=0<arguments.length&&void 0!==arguments[0]?arguments[0]:"png",n=1<arguments.length&&void 0!==arguments[1]?arguments[1]:1,o=2<arguments.length&&void 0!==arguments[2]?arguments[2]:"drawing-board";if(e.IMG_TYPE_ENUM.includes(t)&&"number"==typeof n&&!isNaN(n)){.3>n&&(n=.3),1<n&&(n=1);var a=this.getDataUrl(t,n);if(a){var r=document.createElement("a");document.body.appendChild(r),r.href=a,r.download="".concat(o,"-").concat(new Date().getTime()),r.target="_blank",r.click();var i=setTimeout(function(){document.body.removeChild(r),r=null,clearTimeout(i),i=null},200)}}}}]),e}();return a(na,"INTERACTIVE_MODE_ENUM",["mouse","touch","both"]),a(na,"IMG_TYPE_ENUM",["jpg","jpeg","png","webp"]),na});
