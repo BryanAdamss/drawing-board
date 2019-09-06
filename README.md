@@ -63,30 +63,35 @@ defaultOptions={
 ```
 - `methods`
 ```javascript
-/**
+  /**
    * 获取当前画面的绘制次数
+   * @returns 绘制次数
    */
   getPaintCount() {}
 
   /**
    * 旋转
    * @param {Boolean} direction 方向 1顺时针 -1逆时针
+   * @returns void
    */
   rotate(direction = 1) {}
 
   /**
    * 设置画笔样式(粗细、颜色)
    * @param {Object} penStyle 画笔样式
+   * @returns void
    */
   setPenStyle({ color, width }) {}
 
   /**
    * 撤销
+   * @returns void
    */
   revoke() {}
 
   /**
    * 清空绘制
+   * @returns void
    */
   clear() {}
 
@@ -94,28 +99,33 @@ defaultOptions={
    * 设置canvas尺寸
    * @param {Number} width 宽
    * @param {Number} height 高
+   * @returns void
    */
   setSize([width, height]) {}
 
   /**
    * 重新初始化
    * @param {Object} options 选项
+   * @returns void
    */
   reInit(options) {}
 
   /**
    * 销毁
+   * @returns void
    */
   destory() {}
 
   /**
    * 设置样式名
    * @param {String} name 样式类字符串
+   * @returns void
    */
   setClassName(name) {}
 
   /**
    * 挂载
+   * @returns void
    */
   mount() {}
 
@@ -124,6 +134,7 @@ defaultOptions={
    * @param {CanvasImageSource|String} urlOrObject 需要绘制的图像对象(HTMLImageElement、SVGImageElement、HTMLVideoElement、HTMLCanvasElement、ImageBitmap、OffscreenCanvas)或图像url
    * @param {Number} originalWidth 原图像宽度。当无法从urlOrObject直接获取原始尺寸时需要手动提供原始尺寸
    * @param {Number} originalHeight 原图像高度
+   * @returns void
    */
   setBgImg(urlOrObject, originalWidth, originalHeight) {}
 
@@ -131,6 +142,7 @@ defaultOptions={
    * 获取dataURL
    * @param {String} type 图片类型
    * @param {Number} compressRate 压缩比率
+   * @returns dataURL
    */
   getDataUrl(type = 'png', compressRate = 1) {}
 
@@ -138,6 +150,7 @@ defaultOptions={
    * 获取Blob
    * @param {String} type 图片类型
    * @param {Number} compressRate 压缩比率
+   * @returns promise resolved a blob
    */
   getBlob(type = 'png', compressRate = 1) {}
 
@@ -145,6 +158,7 @@ defaultOptions={
    * 获取File
    * @param {String} type 图片类型
    * @param {Number} compressRate 压缩比率
+   * @returns promise resolved a file
    */
   getFile(name = 'drawingBoard', type = 'png', compressRate = 1) {}
 
@@ -152,6 +166,7 @@ defaultOptions={
    * 下载图片
    * @param {String} type 图片类型
    * @param {Number} compressRate 压缩比率，默认原图输出
+   * @returns void
    */
   download(type = 'png', compressRate = 1, name = 'drawing-board') {}
 ```
