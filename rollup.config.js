@@ -20,7 +20,7 @@ export default {
   input: 'src/main.js',
   output: [
     {
-      file: `dist/${LIB_NAME}.es.js`,
+      file: `dist/${LIB_NAME}.esm.js`,
       format: 'es'
     },
     {

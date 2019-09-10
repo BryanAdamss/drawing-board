@@ -2,8 +2,8 @@
   "name": "@bryanadamss/drawing-board",
   "version": "1.0.3",
   "description": "canvas绘图板，提供绘制、撤销、旋转、下载等功能",
-  "main": "dist/drawing-board.es.js",
-  "module": "dist/drawing-board.es.js",
+  "main": "dist/drawing-board.esm.js",
+  "module": "dist/drawing-board.esm.js",
   "unpkg": "dist/drawing-board.umd.js",
   "scripts": {
     "clean": "shx rm -rf dist/*",
