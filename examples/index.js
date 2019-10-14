@@ -1,3 +1,5 @@
+import DrawingBoard from '../src/main.js'
+
 function handleRevoke() {
   drawingBoard.revoke()
 }

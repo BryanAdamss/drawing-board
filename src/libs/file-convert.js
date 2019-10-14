@@ -3,7 +3,7 @@
  * @description 文件相关类型转换函数
  */
 
-import { isIE } from './browser'
+import { isIE } from './browser.js'
 
 /**
  * blob转File
