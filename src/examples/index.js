@@ -22,6 +22,7 @@ function handleGetFile() {
 }
 function handleSetPenColor(e) {
   const color = e.target.value
+  console.log(color)
 
   drawingBoard.setPenStyle({ color })
 }
@@ -62,5 +63,5 @@ $('#getBlob').onclick = handleGetBlob
 $('#getFile').onclick = handleGetFile
 $('#rotate').onclick = handleRotate
 
-$('#color').onclick = handleSetPenColor
-$('#width').onclick = handleSetPenWidth
+$('#color').onchange = handleSetPenColor
+$('#width').onchange = handleSetPenWidth
