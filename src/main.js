@@ -900,7 +900,7 @@ class DrawingBoard {
    */
   setScale(scale) {
     let s = parseFloat(scale)
-    if (isNaN(s)) return
+    if (isNaN(s) || this.scale === s) return
 
     if (s < this.minScale) s = this.minScale
     if (s > this.maxScale) s = this.maxScale
