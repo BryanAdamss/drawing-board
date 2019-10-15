@@ -20,7 +20,7 @@ or
 <script src="https://unpkg.com/@bryanadamss/drawing-board@latest/dist/drawing-board.umd.js"></script>
 ```
 
-## Exmaple
+## Example
 ```html
 <div id="board"></div>
 ```
