@@ -38,6 +38,9 @@ board.rotate()
 board.download()
 ```
 
+## Demos
+- https://github.com/BryanAdamss/drawing-board/tree/master/examples
+
 ## API
 DrawingBoard(selector,options)
 
@@ -46,23 +49,62 @@ DrawingBoard(selector,options)
 ```javascript
 // 默认参数
 defaultOptions={
-  size: [], // canvas尺寸
-  className: '', // 自定义样式类
-  manualMount: false, // 手动挂载
-  maxRevokeSteps: 10, // 最大回退步数
-  interactiveMode: 'mouse', // 交互模式 enum:['mouse','touch','both'] ,both将同时绑定mouse、touch事件(PointerEvent存在兼容性问题，放弃使用)
-  penColor: 'red', // 画笔颜色
-  penWidth: 6, // 画笔粗细
-  bgImgURL: '', // 背景图url或base64
-  bgImgRotate: 0, // 背景图旋转角度
-  bgColor: '#fff', // 背景色
-  onRevokeStackChange: null, // 撤销栈改变时的
-      调
-  onPaintEnd: null // 绘制一笔结束的回调
+    size: [], // canvas尺寸
+    className: '', // 自定义样式类
+    manualMount: false, // 手动挂载
+    maxRevokeSteps: 10, // 最大回退步数
+    interactiveMode: 'mouse', // 交互模式 enum:['mouse','touch','both'] ,both将同时绑定mouse、touch事件(PointerEvent存在兼容性问题，放弃使用)
+    penColor: 'red', // 画笔颜色
+    penWidth: 6, // 画笔粗细
+    bgImgURL: '', // 背景图url或base64
+    bgImgRotate: 0, // 背景图旋转角度
+    bgColor: '#fff', // 背景色
+    onRevokeStackChange: null, // 撤销栈改变时的回调
+    onPaintEnd: null, // 绘制一笔结束的回调
+    penMode: 'empty', // 画笔模式
+    minScale: 1, // 最小缩放比例
+    maxScale: 3 // 最大缩放比例
 }
 ```
 - `methods`
 ```javascript
+  
+  /**
+   * scale + 0.1
+   */
+  makeScaleAddZeroPointOne() {}
+
+  /**
+   * scale - 0.1
+   */
+  makeScaleSubtractZeroPointOne() {}
+
+  /**
+   * 重置缩放比例、位置
+   */
+  reset() {}
+
+  /**
+   * 设置画笔模式为绘制模式
+   */
+  setPenModePaint() {}
+
+  /**
+   * 设置画笔模式为拖拽模式
+   */
+  setPenModeDrag() {}
+
+  /**
+   * 重置画笔模式为空
+   */
+  setPenModeEmpty() {}
+
+  /**
+   * 设置缩放比例
+   * @param {Number} scale 缩放比例
+   */
+  setScale(scale) {}
+
   /**
    * 获取当前画面的绘制次数
    * @returns 绘制次数
