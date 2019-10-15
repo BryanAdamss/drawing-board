@@ -1,44 +1,86 @@
 import DrawingBoard from '../src/main.js'
 
+function $(selector) {
+  return document.querySelector(selector)
+}
+
 function handleRevoke() {
   drawingBoard.revoke()
 }
+
 function handleClear() {
   drawingBoard.clear()
 }
+
 function handleDownload() {
   drawingBoard.download()
 }
+
 function handleGetDataUrl() {
   console.log(drawingBoard.getDataUrl())
 }
+
 function handleGetBlob() {
   drawingBoard.getBlob().then(blob => {
     console.log(blob)
   })
 }
+
 function handleGetFile() {
   drawingBoard.getFile().then(file => {
     console.log(file)
   })
 }
+
 function handleSetPenColor(e) {
   const color = e.target.value
   console.log(color)
 
   drawingBoard.setPenStyle({ color })
 }
+
 function handleSetPenWidth(e) {
   const width = parseInt(e.target.value)
 
   drawingBoard.setPenStyle({ width })
 }
+
 function handleRotate() {
   drawingBoard.rotate()
 }
 
-function $(selector) {
-  return document.querySelector(selector)
+function handleBigBtnClick() {
+  drawingBoard.makeScaleAddZeroPointOne()
+  console.log('big', drawingBoard.scale)
+}
+
+function handleSmallBtnClick() {
+  drawingBoard.makeScaleSubtractZeroPointOne()
+  console.log('small', drawingBoard.scale)
+}
+
+function handleOriginBtnClick() {
+  drawingBoard.setScale(1)
+  console.log('origin', 1)
+}
+
+function handleHandBtnClick() {
+  drawingBoard.setPenModeDrag()
+  console.log('penMode', drawingBoard.penMode)
+}
+
+function handlePaintBtnClick() {
+  drawingBoard.setPenModePaint()
+  console.log('penMode', drawingBoard.penMode)
+}
+
+function handleEmptyBtnClick() {
+  drawingBoard.setPenModeEmpty()
+  console.log('penMode', drawingBoard.penMode)
+}
+
+function handleResetBtnClick() {
+  drawingBoard.reset()
 }
 
 var drawingBoard = new DrawingBoard('#board', {
@@ -47,7 +89,7 @@ var drawingBoard = new DrawingBoard('#board', {
   className: 'c-MyCanvas',
   size: [300, 400],
   bgImgRotate: 90,
-  interactiveMode: 'both',
+  interactiveMode: 'mouse',
   maxRevokeSteps: 20,
   onRevokeStackChange(stack) {
     console.log('onRevokeStackChange回调', stack)
@@ -67,3 +109,13 @@ $('#rotate').onclick = handleRotate
 
 $('#color').onchange = handleSetPenColor
 $('#width').onchange = handleSetPenWidth
+
+$('#big').onclick = handleBigBtnClick
+$('#small').onclick = handleSmallBtnClick
+$('#origin').onclick = handleOriginBtnClick
+
+$('#hand').onclick = handleHandBtnClick
+$('#paint').onclick = handlePaintBtnClick
+$('#empty').onclick = handleEmptyBtnClick
+
+$('#reset').onclick = handleResetBtnClick
