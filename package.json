@@ -11,7 +11,8 @@
     "setTbOrigin": "npm config set registry https://registry.npm.taobao.org/",
     "prepublishOnly": "npm run build",
     "postpublish": "npm run setTbOrigin",
-    "build": "npm run clean && rollup --config rollup.config.js",
+    "prebuild": "npm run clean",
+    "build": "rollup --config rollup.config.js",
     "release": "standard-version",
     "release:first": "npm run release --first-release",
     "publish2Npm": "git push --follow-tags origin master && npm publish --access=public"
