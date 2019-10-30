@@ -1,6 +1,6 @@
 {
   "name": "@bryanadamss/drawing-board",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "canvas绘图板，提供绘制、撤销、旋转、下载等功能",
   "main": "dist/drawing-board.umd.js",
   "module": "dist/drawing-board.esm.js",
