@@ -11,4 +11,4 @@ import { IeCompatibleBlob } from '../types/blob';
  * @param {String} name filename
  * @returns
  */
-export declare function blob2File(blob: IeCompatibleBlob, name: string): IeCompatibleBlob | File;
+export declare function blob2File(blob: IeCompatibleBlob, name: string): File | IeCompatibleBlob;

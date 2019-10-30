@@ -101,6 +101,7 @@ class DrawingBoard {
     this.dragTransformX = 0
     this.dragTransformY = 0
 
+    // 画笔模式
     this.penMode = DrawingBoard.PEN_MODE_ENUM.includes(penMode)
       ? penMode
       : 'empty'
@@ -235,7 +236,7 @@ class DrawingBoard {
    * @param {String} action 动作
    * @returns void
    */
-  _bindCurInteractiveModeEvents({ action }) {
+  _bindCurInteractiveModeEvents(action) {
     if (!this.el) return
 
     const pointerType = this._getPointerType(this.interactiveMode)
@@ -343,9 +344,9 @@ class DrawingBoard {
 
     if (this.penMode === 'drag') this._handleDragStart(e)
 
-    this._bindCurInteractiveModeEvents({ action: 'move' })
-    this._bindCurInteractiveModeEvents({ action: 'end' })
-    this._bindCurInteractiveModeEvents({ action: 'leave' })
+    this._bindCurInteractiveModeEvents('move')
+    this._bindCurInteractiveModeEvents('end')
+    this._bindCurInteractiveModeEvents('leave')
   }
 
   /**
@@ -1040,7 +1041,7 @@ class DrawingBoard {
     this._setDOMSize([this.width, this.height])
     this.setClassName(this.className)
 
-    this._bindCurInteractiveModeEvents({ action: 'start' })
+    this._bindCurInteractiveModeEvents('start')
 
     this.container.appendChild(this.el)
   }

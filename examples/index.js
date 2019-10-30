@@ -1,4 +1,4 @@
-import DrawingBoard from '../src/main.js'
+import DrawingBoard from '../dist/drawing-board.esm.js'
 
 function $(selector) {
   return document.querySelector(selector)
@@ -89,7 +89,7 @@ var drawingBoard = new DrawingBoard('#board', {
   className: 'c-MyCanvas',
   size: [300, 400],
   bgImgRotate: 90,
-  interactiveMode: 'mouse',
+  interactiveMode: 'both',
   maxRevokeSteps: 20,
   onRevokeStackChange(stack) {
     console.log('onRevokeStackChange回调', stack)

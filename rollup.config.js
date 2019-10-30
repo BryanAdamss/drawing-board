@@ -20,7 +20,7 @@ const GLOBAL_NAME = 'DrawingBoard'
 const pkg = require('./package.json')
 
 export default {
-  input: 'src/main.js',
+  input: 'src/main.ts',
   output: [
     {
       file: pkg.main,

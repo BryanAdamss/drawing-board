@@ -14,7 +14,10 @@ import { isIE } from './browser.js'
  * @param {String} name filename
  * @returns
  */
-export function blob2File(blob: IeCompatibleBlob, name: string) {
+export function blob2File(
+  blob: IeCompatibleBlob,
+  name: string
+): File | IeCompatibleBlob {
   if (isIE) {
     // IE不支持new File
     blob.lastModifiedDate = new Date()
