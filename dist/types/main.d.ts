@@ -57,32 +57,32 @@ declare class DrawingBoard {
      */
     constructor(container: HTMLElement | string, options: Options);
     /**
-     * 获取背景图并绘制
+     * 获取合法的交互模式
      *
      * @private
-     * @param {string} bgImgURL 背景图url
+     * @param {*} mode 模式字符串
+     * @returns {PEN_MODE} 模式字符串
      * @memberof DrawingBoard
      */
-    private _getImgAndDraw;
+    private _getInteractiveMode;
     /**
-     * 绘制背景底图
+     * 获取合法的画笔模式
      *
      * @private
-     * @param {CanvasImageSource} imgObject 图像对象
-     * @param {number} w 宽
-     * @param {number} h 高
+     * @param {*} mode 模式字符串
+     * @returns {PEN_MODE} 画笔模式
      * @memberof DrawingBoard
      */
-    private _drawBg;
+    private _getPenMode;
     /**
-     * 获取合法角度值(逆时针旋转角度记录为正值，-90度 记录为270；450记录为90,10度记录为0,55度记录为90)
+     * 获取container容器
      *
      * @private
-     * @param {*} angle 角度
-     * @returns {number} 合法角度值
+     * @param {(HTMLElement | string)} container 选择器或el
+     * @returns container容器el
      * @memberof DrawingBoard
      */
-    private _getLawfulRotateAngle;
+    private _getContainer;
     /**
      * 获取合法className
      *
@@ -111,6 +111,158 @@ declare class DrawingBoard {
      */
     private _getPenWidth;
     /**
+     * 获取合法角度值(逆时针旋转角度记录为正值，-90度 记录为270；450记录为90,10度记录为0,55度记录为90)
+     *
+     * @private
+     * @param {*} angle 角度
+     * @returns {number} 合法角度值
+     * @memberof DrawingBoard
+     */
+    private _getLawfulRotateAngle;
+    /**
+     * 获取事件相对触发对象的偏移值
+     *
+     * @private
+     * @param {(MouseEvent | TouchEvent)} e 事件对象
+     * @returns {Point} 坐标
+     * @memberof DrawingBoard
+     */
+    private _getPointOffset;
+    /**
+     * 获取合法的最大撤销步数
+     *
+     * @private
+     * @param {number} steps steps 步数
+     * @returns {number} 合法的最大撤销步数
+     * @memberof DrawingBoard
+     */
+    private _getLawfulMaxRevokeSteps;
+    /**
+     * 获取模式对应的指针类型
+     * @param {string} mode 模式
+     * @returns 类型字符串
+     */
+    private _getPointerType;
+    /**
+     * 生成事件映射列表
+     *
+     * @private
+     * @returns {EventItem[]} 事件映射列表
+     * @memberof DrawingBoard
+     */
+    private _makeEventList;
+    /**
+     * 过滤出符合条件的EventItems
+     *
+     * @private
+     * @param {EventItemCondition} 过滤条件
+     * @returns {EventItem[]} EventItems数组
+     * @memberof DrawingBoard
+     */
+    private _getEventItems;
+    /**
+     * 生成canvas元素
+     *
+     * @private
+     * @returns {HTMLCanvasElement} canvas DOM对象
+     * @memberof DrawingBoard
+     */
+    private _makeCanvas;
+    /**
+     * 获取绘图上下文
+     *
+     * @private
+     * @returns {CanvasRenderingContext2D} 2d上下文
+     * @memberof DrawingBoard
+     */
+    private _getCtx;
+    /**
+     * 设置canvas transform
+     *
+     * @private
+     * @param {number} x 横轴
+     * @param {number} y 纵轴
+     * @param {number} scale 缩放比例
+     * @param {boolean} [transition=false] 过渡动画
+     * @memberof DrawingBoard
+     */
+    private _setCanvasTransform;
+    /**
+     * 设置canvas dom尺寸
+     *
+     * @private
+     * @param {number[]} [width, height] 宽高数组
+     * @memberof DrawingBoard
+     */
+    private _setDOMSize;
+    /**
+     * 设置画笔模式
+     *
+     * @private
+     * @param {PEN_MODE} mode 画笔模式
+     * @memberof DrawingBoard
+     */
+    private _setPenMode;
+    /**
+     * 保存当前画布状态
+     *
+     * @private
+     * @param {PEN_MODE} [type='paint'] 类型(绘制paint、清空clear) 默认paint
+     * @param {number} paintCount 绘制次数
+     * @param {ImageData} imageData 像素数据
+     * @memberof DrawingBoard
+     */
+    private _saveImageData;
+    /**
+     * 绑定当前模式对应动作的所有事件
+     * @param {String} action 动作
+     * @returns void
+     */
+    private _bindCurInteractiveModeEvents;
+    /**
+     * 清除当前模式对应动作的所有事件
+     * @param {String} action 动作
+     * @returns void
+     */
+    private _cleanCurInteractiveModeEvents;
+    /**
+     * 绑定符合特定条件的事件
+     * @param {Object} condition 过滤条件
+     * @returns void
+     */
+    private _bindEvent;
+    /**
+     * 清除符合特定条件的事件
+     * @param {Object} condition 过滤条件
+     * @returns void
+     */
+    private _cleanEvent;
+    /**
+     * 单步撤销
+     *
+     * @private
+     * @memberof DrawingBoard
+     */
+    private _revoke;
+    /**
+     * 获取背景图并绘制
+     *
+     * @private
+     * @param {string} bgImgURL 背景图url
+     * @memberof DrawingBoard
+     */
+    private _getImgAndDraw;
+    /**
+     * 绘制背景底图
+     *
+     * @private
+     * @param {CanvasImageSource} imgObject 图像对象
+     * @param {number} w 宽
+     * @param {number} h 高
+     * @memberof DrawingBoard
+     */
+    private _drawBg;
+    /**
      * 绘制圆形
      *
      * @private
@@ -134,15 +286,6 @@ declare class DrawingBoard {
      * @memberof DrawingBoard
      */
     private _drawLine;
-    /**
-     * 获取事件相对触发对象的偏移值
-     *
-     * @private
-     * @param {(MouseEvent | TouchEvent)} e 事件对象
-     * @returns {Point} 坐标
-     * @memberof DrawingBoard
-     */
-    private _getPointOffset;
     /**
      * 处理指针开始
      *
@@ -221,155 +364,12 @@ declare class DrawingBoard {
      */
     private _handlePointerCancel;
     /**
-     * 设置canvas transform
-     *
-     * @private
-     * @param {number} x 横轴
-     * @param {number} y 纵轴
-     * @param {number} scale 缩放比例
-     * @param {boolean} [transition=false] 过渡动画
-     * @memberof DrawingBoard
-     */
-    private _setCanvasTransform;
-    /**
-     * 保存当前画布状态
-     *
-     * @private
-     * @param {PEN_MODE} [type='paint'] 类型(绘制paint、清空clear) 默认paint
-     * @param {number} paintCount 绘制次数
-     * @param {ImageData} imageData 像素数据
-     * @memberof DrawingBoard
-     */
-    private _saveImageData;
-    /**
-     * 生成事件映射列表
-     *
-     * @private
-     * @returns {EventItem[]} 事件映射列表
-     * @memberof DrawingBoard
-     */
-    private _makeEventList;
-    /**
-     * 获取合法的交互模式
-     *
-     * @private
-     * @param {*} mode 模式字符串
-     * @returns {PEN_MODE} 模式字符串
-     * @memberof DrawingBoard
-     */
-    private _getInteractiveMode;
-    /**
-     * 获取合法的画笔模式
-     *
-     * @private
-     * @param {*} mode 模式字符串
-     * @returns {PEN_MODE} 画笔模式
-     * @memberof DrawingBoard
-     */
-    private _getPenMode;
-    /**
-     * 获取container容器
-     *
-     * @private
-     * @param {(HTMLElement | string)} container 选择器或el
-     * @returns container容器el
-     * @memberof DrawingBoard
-     */
-    private _getContainer;
-    /**
-     * 设置canvas dom尺寸
-     *
-     * @private
-     * @param {number[]} [width, height] 宽高数组
-     * @memberof DrawingBoard
-     */
-    private _setDOMSize;
-    /**
-     * 获取合法的最大撤销步数
-     *
-     * @private
-     * @param {number} steps steps 步数
-     * @returns {number} 合法的最大撤销步数
-     * @memberof DrawingBoard
-     */
-    private _getLawfulMaxRevokeSteps;
-    /**
-     * 生成canvas元素
-     *
-     * @private
-     * @returns {HTMLCanvasElement} canvas DOM对象
-     * @memberof DrawingBoard
-     */
-    private _makeCanvas;
-    /**
-     * 获取绘图上下文
-     *
-     * @private
-     * @returns {CanvasRenderingContext2D} 2d上下文
-     * @memberof DrawingBoard
-     */
-    private _getCtx;
-    /**
-     * 获取模式对应的指针类型
-     * @param {string} mode 模式
-     * @returns 类型字符串
-     */
-    private _getPointerType;
-    /**
-     * 过滤出符合条件的EventItems
-     *
-     * @private
-     * @param {EventItemCondition} 过滤条件
-     * @returns {EventItem[]} EventItems数组
-     * @memberof DrawingBoard
-     */
-    private _getEventItems;
-    /**
-     * 绑定当前模式对应动作的所有事件
-     * @param {String} action 动作
-     * @returns void
-     */
-    private _bindCurInteractiveModeEvents;
-    /**
-     * 清除当前模式对应动作的所有事件
-     * @param {String} action 动作
-     * @returns void
-     */
-    private _cleanCurInteractiveModeEvents;
-    /**
-     * 绑定符合特定条件的事件
-     * @param {Object} condition 过滤条件
-     * @returns void
-     */
-    private _bindEvent;
-    /**
-     * 清除符合特定条件的事件
-     * @param {Object} condition 过滤条件
-     * @returns void
-     */
-    private _cleanEvent;
-    /**
-     * 设置画笔模式
-     *
-     * @private
-     * @param {PEN_MODE} mode 画笔模式
-     * @memberof DrawingBoard
-     */
-    private _setPenMode;
-    /**
      * 处理缩放比例改变
      *
      * @private
      * @memberof DrawingBoard
      */
     private _handleScaleChange;
-    /**
-     * 单步撤销
-     *
-     * @private
-     * @memberof DrawingBoard
-     */
-    private _revoke;
     /**
      * 设置画笔样式(粗细、颜色)
      *
@@ -391,11 +391,6 @@ declare class DrawingBoard {
      * @memberof DrawingBoard
      */
     setClassName(name: string): void;
-    /**
-     * 挂载
-     * @returns void
-     */
-    mount(): void;
     /**
      * 设置画笔模式为绘制模式
      *
@@ -422,12 +417,21 @@ declare class DrawingBoard {
      */
     setScale(scale: any): void;
     /**
-     * 获取当前画面的绘制次数
+     * 挂载
+     * @returns void
+     */
+    mount(): void;
+    /**
+     * 销毁
      *
-     * @returns {number} 绘制次数
      * @memberof DrawingBoard
      */
-    getPaintCount(): number;
+    destory(): void;
+    /**
+     * 清空绘制
+     * @returns void
+     */
+    clear(): void;
     /**
      * 旋转
      *
@@ -441,17 +445,6 @@ declare class DrawingBoard {
      */
     revoke(): void;
     /**
-     * 清空绘制
-     * @returns void
-     */
-    clear(): void;
-    /**
-     * 销毁
-     *
-     * @memberof DrawingBoard
-     */
-    destory(): void;
-    /**
      * 设置背景
      *
      * @param {(CanvasImageSource | string)} urlOrObject 需要绘制的图像对象(HTMLImageElement、SVGImageElement、HTMLVideoElement、HTMLCanvasElement、ImageBitmap、OffscreenCanvas)或图像url
@@ -461,6 +454,31 @@ declare class DrawingBoard {
      */
     setBgImg(urlOrObject: CanvasImageSource | string, originalWidth: number, originalHeight: number): void;
     /**
+     * scale + 0.1
+     *
+     * @memberof DrawingBoard
+     */
+    makeScaleAddZeroPointOne(): void;
+    /**
+     * scale - 0.1
+     *
+     * @memberof DrawingBoard
+     */
+    makeScaleSubtractZeroPointOne(): void;
+    /**
+     * 重置缩放比例、位置
+     *
+     * @memberof DrawingBoard
+     */
+    reset(): void;
+    /**
+     * 获取当前画面的绘制次数
+     *
+     * @returns {number} 绘制次数
+     * @memberof DrawingBoard
+     */
+    getPaintCount(): number;
+    /**
      * 获取dataURL
      *
      * @param {IMG_TYPE} [type='png'] 图片类型
@@ -468,7 +486,7 @@ declare class DrawingBoard {
      * @returns dataURL
      * @memberof DrawingBoard
      */
-    getDataUrl(type?: IMG_TYPE, compressRate?: number): string | undefined;
+    getDataUrl(type?: IMG_TYPE, compressRate?: number): string;
     /**
      * 获取Blob
      *
@@ -497,23 +515,5 @@ declare class DrawingBoard {
      * @memberof DrawingBoard
      */
     download(type?: IMG_TYPE, compressRate?: number, name?: string): void;
-    /**
-     * scale + 0.1
-     *
-     * @memberof DrawingBoard
-     */
-    makeScaleAddZeroPointOne(): void;
-    /**
-     * scale - 0.1
-     *
-     * @memberof DrawingBoard
-     */
-    makeScaleSubtractZeroPointOne(): void;
-    /**
-     * 重置缩放比例、位置
-     *
-     * @memberof DrawingBoard
-     */
-    reset(): void;
 }
 export default DrawingBoard;

@@ -1016,7 +1016,7 @@ class DrawingBoard {
    */
   private _handlePointerLeave = (e: MouseEvent | TouchEvent): void => {
     console.log('_handlePointerLeave')
-    if (this.isPainting || this.isDraging) this._handlePointerEnd(e)
+    if (this.isPainting || this.isDraging) this._handlePointerEnd()
   }
 
   /**
@@ -1030,7 +1030,7 @@ class DrawingBoard {
   private _handlePointerCancel = (e: MouseEvent | TouchEvent): void => {
     console.log('_handlePointerCancel')
 
-    if (this.isPainting || this.isDraging) this._handlePointerEnd(e)
+    if (this.isPainting || this.isDraging) this._handlePointerEnd()
   }
 
   /**
