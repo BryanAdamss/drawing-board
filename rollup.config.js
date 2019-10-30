@@ -4,6 +4,10 @@ import commonjs from 'rollup-plugin-commonjs' // 一些库导出成你可以正�
 
 import minify from 'rollup-plugin-babel-minify'
 
+import json from 'rollup-plugin-json' // 将json转为es6模块
+import typescript from 'rollup-plugin-typescript2' // 编译ts
+import sourceMaps from 'rollup-plugin-sourcemaps' // 生成sourcemap
+
 // rollup支持以下格式
 // amd – 异步模块定义，用于像RequireJS这样的模块加载器
 // cjs – CommonJS，适用于 Node 和 Browserify/Webpack
@@ -12,7 +16,6 @@ import minify from 'rollup-plugin-babel-minify'
 // umd – 通用模块定义，以amd，cjs 和 iife 为一体
 // 所以正常情况下打包es及umd格式即可
 
-const LIB_NAME = 'drawing-board'
 const GLOBAL_NAME = 'DrawingBoard'
 const pkg = require('./package.json')
 
@@ -20,17 +23,21 @@ export default {
   input: 'src/main.js',
   output: [
     {
-      file: `dist/${LIB_NAME}.esm.js`,
-      format: 'es'
-    },
-    {
-      file: `dist/${LIB_NAME}.umd.js`,
+      file: pkg.main,
       format: 'umd',
       // umd模式需要指定name
-      name: GLOBAL_NAME
+      name: GLOBAL_NAME,
+      sourcemap: true
+    },
+    {
+      file: pkg.module,
+      format: 'es',
+      sourcemap: true
     }
   ],
   plugins: [
+    json(),
+    typescript({ useTsconfigDeclarationDir: true }),
     // plugins顺序有讲究
     // 正常情况,resolve，commonjs应该在第一第二位置
     // 但此库使用了es6 class的类属性提案，commonjs无法解析，需要使用@babel/plugin-proposal-class-properties；所以将babel提前到首位
@@ -40,7 +47,9 @@ export default {
     resolve(),
     commonjs(),
     // 压缩，应该使用在production模式
-    minify()
+    // 移除comments
+    minify({ comments: false }),
+    sourceMaps()
   ],
   external: [
     // 配置额外库

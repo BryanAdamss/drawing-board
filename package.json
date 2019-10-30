@@ -2,7 +2,7 @@
   "name": "@bryanadamss/drawing-board",
   "version": "1.1.1",
   "description": "canvas绘图板，提供绘制、撤销、旋转、下载等功能",
-  "main": "dist/drawing-board.esm.js",
+  "main": "dist/drawing-board.umd.js",
   "module": "dist/drawing-board.esm.js",
   "unpkg": "dist/drawing-board.umd.js",
   "scripts": {
@@ -15,7 +15,8 @@
     "build": "rollup --config rollup.config.js",
     "release": "standard-version",
     "release:first": "npm run release --first-release",
-    "publish2Npm": "git push --follow-tags origin master && npm publish --access=public"
+    "publish2Npm": "git push --follow-tags origin master && npm publish --access=public",
+    "commit": "git-cz"
   },
   "repository": {
     "type": "git",
@@ -32,18 +33,29 @@
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
+    "commitizen": "^4.0.3",
     "core-js": "^3.2.1",
+    "cz-conventional-changelog": "^3.0.2",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-babel-minify": "^9.0.0",
     "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.24.3",
     "shx": "^0.3.2",
-    "standard-version": "^7.0.0"
+    "standard-version": "^7.0.0",
+    "typescript": "^3.6.4"
   },
   "bugs": {
     "url": "https://github.com/BryanAdamss/drawing-board/issues"
   },
   "homepage": "https://github.com/BryanAdamss/drawing-board#readme",
-  "dependencies": {}
+  "dependencies": {},
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
