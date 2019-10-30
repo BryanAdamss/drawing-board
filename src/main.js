@@ -3,7 +3,7 @@
  * @description 绘图板
  */
 
-import { blob2File } from './libs/file-convert.js'
+import { blob2File } from './libs/file-convert.ts'
 
 class DrawingBoard {
   // 支持的交互模式枚举
