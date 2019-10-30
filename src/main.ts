@@ -30,7 +30,8 @@ import {
   MSG_LAST_PAINT_POINT_NOT_FOUNT,
   MSG_EVENT_TARGET_NOT_FOUNT,
   MSG_BG_URL_NOT_LAWFUL,
-  MSG_BLOB_CANT_GEN
+  MSG_BLOB_CANT_GEN,
+  MSG_DATAURL_CANT_GEN
 } from './libs/err-msg'
 
 class DrawingBoard {
@@ -213,6 +214,470 @@ class DrawingBoard {
   }
 
   /**
+   * 获取合法的交互模式
+   *
+   * @private
+   * @param {*} mode 模式字符串
+   * @returns {PEN_MODE} 模式字符串
+   * @memberof DrawingBoard
+   */
+  private _getInteractiveMode(mode: any): INTERACTIVE_MODE {
+    return DrawingBoard.INTERACTIVE_MODE_ENUM.includes(mode) ? mode : 'mouse'
+  }
+
+  /**
+   * 获取合法的画笔模式
+   *
+   * @private
+   * @param {*} mode 模式字符串
+   * @returns {PEN_MODE} 画笔模式
+   * @memberof DrawingBoard
+   */
+  private _getPenMode(mode: any): PEN_MODE {
+    return DrawingBoard.PEN_MODE_ENUM.includes(mode) ? mode : 'empty'
+  }
+
+  /**
+   * 获取container容器
+   *
+   * @private
+   * @param {(HTMLElement | string)} container 选择器或el
+   * @returns container容器el
+   * @memberof DrawingBoard
+   */
+  private _getContainer(container: HTMLElement | string): HTMLElement {
+    if (container instanceof HTMLElement) return container
+
+    const el = $(container)
+    if (el == null) {
+      throw new Error(MSG_CONTAINER_NOT_FOUND)
+    } else {
+      return el
+    }
+  }
+
+  /**
+   * 获取合法className
+   *
+   * @private
+   * @param {*} name 样式类
+   * @returns {string} 合法样式类
+   * @memberof DrawingBoard
+   */
+  private _getClassName(name: any): string {
+    return name && typeof name === 'string' ? name : ''
+  }
+
+  /**
+   * 获取合法penColor
+   *
+   * @private
+   * @param {*} color 颜色
+   * @returns {string} 合法颜色值
+   * @memberof DrawingBoard
+   */
+  private _getPenColor(color: any): string {
+    return !color || typeof color !== 'string' ? 'red' : color
+  }
+
+  /**
+   * 获取合法penWidth
+   *
+   * @private
+   * @param {*} width 粗细
+   * @returns {number}  合法画笔粗细
+   * @memberof DrawingBoard
+   */
+  private _getPenWidth(width: any): number {
+    return !width || typeof width !== 'number' || isNaN(width) || width <= 0
+      ? 6
+      : width
+  }
+
+  /**
+   * 获取合法角度值(逆时针旋转角度记录为正值，-90度 记录为270；450记录为90,10度记录为0,55度记录为90)
+   *
+   * @private
+   * @param {*} angle 角度
+   * @returns {number} 合法角度值
+   * @memberof DrawingBoard
+   */
+  private _getLawfulRotateAngle(angle: any): number {
+    if (typeof angle !== 'number' || isNaN(angle))
+      throw new Error(MSG_ANGLE_NOT_LAWFUL)
+
+    const tempAngle = angle % 360
+    const newAngle = tempAngle < 0 ? tempAngle + 360 : tempAngle
+    // 角度>=45，计入下一个90度，保证返回的角度 % 90 ===0
+    const roundAngle =
+      newAngle % 90 >= 45
+        ? (Math.ceil(newAngle / 90) * 90) % 360
+        : (Math.floor(newAngle / 90) * 90) % 360
+
+    // 可能存在-0
+    return Math.abs(roundAngle)
+  }
+
+  /**
+   * 获取事件相对触发对象的偏移值
+   *
+   * @private
+   * @param {(MouseEvent | TouchEvent)} e 事件对象
+   * @returns {Point} 坐标
+   * @memberof DrawingBoard
+   */
+  private _getPointOffset(e: MouseEvent | TouchEvent): Point {
+    if (e instanceof MouseEvent) {
+      return {
+        x: e.offsetX,
+        y: e.offsetY
+      }
+    } else {
+      const { touches, target } = e
+      if (target == null) throw new Error(MSG_EVENT_TARGET_NOT_FOUNT)
+
+      const { clientX, clientY } = touches[0]
+      const { left, top } = (target as Element).getBoundingClientRect()
+
+      return {
+        x: clientX - left,
+        y: clientY - top
+      }
+    }
+  }
+
+  /**
+   * 获取合法的最大撤销步数
+   *
+   * @private
+   * @param {number} steps steps 步数
+   * @returns {number} 合法的最大撤销步数
+   * @memberof DrawingBoard
+   */
+  private _getLawfulMaxRevokeSteps(steps: number): number {
+    if (steps <= 0 || typeof steps !== 'number' || isNaN(steps))
+      return DrawingBoard.LIMIT_MIN_REVOKE_STEPS
+
+    if (steps > DrawingBoard.LIMIT_MAX_REVOKE_STEPS)
+      return DrawingBoard.LIMIT_MAX_REVOKE_STEPS
+
+    return steps
+  }
+
+  /**
+   * 获取模式对应的指针类型
+   * @param {string} mode 模式
+   * @returns 类型字符串
+   */
+  private _getPointerType(mode: INTERACTIVE_MODE): EventPointerType {
+    if (mode === 'both') {
+      return 'touchAndMouse'
+    } else if (mode === 'touch') {
+      return 'touch'
+    } else {
+      return 'mouse'
+    }
+  }
+
+  /**
+   * 生成事件映射列表
+   *
+   * @private
+   * @returns {EventItem[]} 事件映射列表
+   * @memberof DrawingBoard
+   */
+  private _makeEventList(): EventItem[] {
+    return [
+      {
+        pointerType: 'mouse',
+        action: 'start',
+        name: 'mousedown',
+        handler: this._handlePointerStart
+      },
+      {
+        pointerType: 'mouse',
+        action: 'move',
+        name: 'mousemove',
+        handler: this._handlePointerMove
+      },
+      {
+        pointerType: 'mouse',
+        action: 'end',
+        name: 'mouseup',
+        handler: this._handlePointerEnd
+      },
+      {
+        pointerType: 'mouse',
+        action: 'leave',
+        name: 'mouseleave',
+        handler: this._handlePointerLeave
+      },
+      {
+        pointerType: 'touch',
+        action: 'start',
+        name: 'touchstart',
+        handler: this._handlePointerStart
+      },
+      {
+        pointerType: 'touch',
+        action: 'move',
+        name: 'touchmove',
+        handler: this._handlePointerMove
+      },
+      {
+        pointerType: 'touch',
+        action: 'end',
+        name: 'touchend',
+        handler: this._handlePointerEnd
+      },
+      {
+        pointerType: 'touch',
+        action: 'cancel',
+        name: 'touchcancel',
+        handler: this._handlePointerCancel
+      }
+    ]
+  }
+
+  /**
+   * 过滤出符合条件的EventItems
+   *
+   * @private
+   * @param {EventItemCondition} 过滤条件
+   * @returns {EventItem[]} EventItems数组
+   * @memberof DrawingBoard
+   */
+  private _getEventItems({
+    pointerType,
+    action
+  }: EventItemCondition): EventItem[] {
+    let filterFn: any
+
+    // pointerType不指定或为touchAndMouse时，只过滤action
+    if (!pointerType || pointerType === 'touchAndMouse') {
+      if (action) {
+        filterFn = (item: EventItem) => item.action === action
+      } else {
+        // pointerType、action都为空，则返回所有
+        return this.eventList
+      }
+    } else {
+      // pointerType存在并不为touchAndMouse时，需要同时过滤pointerType和action
+      if (action) {
+        filterFn = (item: EventItem) =>
+          item.pointerType === pointerType && item.action === action
+      } else {
+        filterFn = (item: EventItem) => item.pointerType === pointerType
+      }
+    }
+
+    return this.eventList.filter(filterFn)
+  }
+
+  /**
+   * 生成canvas元素
+   *
+   * @private
+   * @returns {HTMLCanvasElement} canvas DOM对象
+   * @memberof DrawingBoard
+   */
+  private _makeCanvas(): HTMLCanvasElement {
+    return document.createElement('canvas')
+  }
+
+  /**
+   * 获取绘图上下文
+   *
+   * @private
+   * @returns {CanvasRenderingContext2D} 2d上下文
+   * @memberof DrawingBoard
+   */
+  private _getCtx(): CanvasRenderingContext2D {
+    const ctx = this.el && this.el.getContext && this.el.getContext('2d')
+    if (ctx == null) throw new Error(MSG_CTX_CANT_GET)
+
+    return ctx
+  }
+
+  /**
+   * 设置canvas transform
+   *
+   * @private
+   * @param {number} x 横轴
+   * @param {number} y 纵轴
+   * @param {number} scale 缩放比例
+   * @param {boolean} [transition=false] 过渡动画
+   * @memberof DrawingBoard
+   */
+  private _setCanvasTransform(
+    x: number,
+    y: number,
+    scale: number,
+    transition: boolean = false
+  ): void {
+    if (!this.el) return
+
+    const text = `transform:scale(${scale}) translate3d(${x}px,${y}px,0);transform-origin:center;`
+    const cssText = transition ? text + 'transition:0.3s;' : text
+
+    this.el.setAttribute('style', cssText)
+  }
+
+  /**
+   * 设置canvas dom尺寸
+   *
+   * @private
+   * @param {number[]} [width, height] 宽高数组
+   * @memberof DrawingBoard
+   */
+  private _setDOMSize([width, height]: number[]): void {
+    if (width != null && this.el) this.el.width = width
+    if (height != null && this.el) this.el.height = height
+  }
+
+  /**
+   * 设置画笔模式
+   *
+   * @private
+   * @param {PEN_MODE} mode 画笔模式
+   * @memberof DrawingBoard
+   */
+  private _setPenMode(mode: PEN_MODE): void {
+    if (!DrawingBoard.PEN_MODE_ENUM.includes(mode)) return
+
+    this.penMode = mode
+  }
+
+  /**
+   * 保存当前画布状态
+   *
+   * @private
+   * @param {PEN_MODE} [type='paint'] 类型(绘制paint、清空clear) 默认paint
+   * @param {number} paintCount 绘制次数
+   * @param {ImageData} imageData 像素数据
+   * @memberof DrawingBoard
+   */
+  private _saveImageData(
+    type = 'paint',
+    paintCount: number,
+    imageData: ImageData
+  ): void {
+    if (
+      !['paint', 'clear'].includes(type) ||
+      paintCount == null ||
+      !imageData ||
+      !(imageData instanceof ImageData)
+    ) {
+      return
+    }
+
+    if (this.revokeStack.length >= this.MAX_REVOKE_STEPS) {
+      this.revokeStack.shift()
+    }
+
+    // 保存类型及绘制次数(撤销时使用)
+    this.revokeStack.push({ type, paintCount, imageData })
+
+    this.onRevokeStackChange &&
+      typeof this.onRevokeStackChange === 'function' &&
+      this.onRevokeStackChange(this.revokeStack)
+
+    console.log('_saveImageData onRevokeStackChange', this.revokeStack)
+  }
+
+  /**
+   * 绑定当前模式对应动作的所有事件
+   * @param {String} action 动作
+   * @returns void
+   */
+  private _bindCurInteractiveModeEvents(action: EventAction): void {
+    if (!this.el) return
+
+    // TODO:此处需要处理_getPointerType的''
+    const pointerType = this._getPointerType(this.interactiveMode)
+
+    const condition: EventItemCondition = { pointerType, action }
+
+    this._cleanCurInteractiveModeEvents(condition)
+
+    this._bindEvent(condition)
+  }
+
+  /**
+   * 清除当前模式对应动作的所有事件
+   * @param {String} action 动作
+   * @returns void
+   */
+  private _cleanCurInteractiveModeEvents({ action }: EventItemCondition): void {
+    if (!this.el) return
+
+    const pointerType = this._getPointerType(this.interactiveMode)
+
+    const condition = { pointerType, action }
+
+    this._cleanEvent(condition)
+  }
+
+  /**
+   * 绑定符合特定条件的事件
+   * @param {Object} condition 过滤条件
+   * @returns void
+   */
+  private _bindEvent(condition: EventItemCondition = {}): void {
+    const eventItems = this._getEventItems(condition)
+    if (!eventItems || !eventItems.length) return
+
+    eventItems.forEach(({ name, handler }) => {
+      this.el && this.el.addEventListener(name, handler, false)
+    })
+  }
+
+  /**
+   * 清除符合特定条件的事件
+   * @param {Object} condition 过滤条件
+   * @returns void
+   */
+  private _cleanEvent(condition = {}): void {
+    const eventItems = this._getEventItems(condition)
+    if (!eventItems || !eventItems.length) return
+
+    eventItems.forEach(
+      ({ name, handler }) =>
+        this.el && this.el.removeEventListener(name, handler, false)
+    )
+  }
+
+  /**
+   * 单步撤销
+   *
+   * @private
+   * @memberof DrawingBoard
+   */
+  private _revoke(): void {
+    if (!this.ctx || !this.revokeStack || !this.revokeStack.length) return
+
+    const {
+      imageData,
+      paintCount: afterRevokePaintCount
+    } = this.revokeStack.pop()
+
+    this.ctx.putImageData(imageData, 0, 0)
+
+    // 恢复绘制次数
+    this.paintCount = afterRevokePaintCount
+
+    this.onRevokeStackChange &&
+      typeof this.onRevokeStackChange === 'function' &&
+      this.onRevokeStackChange(this.revokeStack)
+
+    console.log(
+      '_revoke onRevokeStackChange',
+      this.revokeStack,
+      afterRevokePaintCount
+    )
+  }
+
+  /**
    * 获取背景图并绘制
    *
    * @private
@@ -313,68 +778,6 @@ class DrawingBoard {
   }
 
   /**
-   * 获取合法角度值(逆时针旋转角度记录为正值，-90度 记录为270；450记录为90,10度记录为0,55度记录为90)
-   *
-   * @private
-   * @param {*} angle 角度
-   * @returns {number} 合法角度值
-   * @memberof DrawingBoard
-   */
-  private _getLawfulRotateAngle(angle: any): number {
-    if (typeof angle !== 'number' || isNaN(angle))
-      throw new Error(MSG_ANGLE_NOT_LAWFUL)
-
-    const tempAngle = angle % 360
-    const newAngle = tempAngle < 0 ? tempAngle + 360 : tempAngle
-    // 角度>=45，计入下一个90度，保证返回的角度 % 90 ===0
-    const roundAngle =
-      newAngle % 90 >= 45
-        ? (Math.ceil(newAngle / 90) * 90) % 360
-        : (Math.floor(newAngle / 90) * 90) % 360
-
-    // 可能存在-0
-    return Math.abs(roundAngle)
-  }
-
-  /**
-   * 获取合法className
-   *
-   * @private
-   * @param {*} name 样式类
-   * @returns {string} 合法样式类
-   * @memberof DrawingBoard
-   */
-  private _getClassName(name: any): string {
-    return name && typeof name === 'string' ? name : ''
-  }
-
-  /**
-   * 获取合法penColor
-   *
-   * @private
-   * @param {*} color 颜色
-   * @returns {string} 合法颜色值
-   * @memberof DrawingBoard
-   */
-  private _getPenColor(color: any): string {
-    return !color || typeof color !== 'string' ? 'red' : color
-  }
-
-  /**
-   * 获取合法penWidth
-   *
-   * @private
-   * @param {*} width 粗细
-   * @returns {number}  合法画笔粗细
-   * @memberof DrawingBoard
-   */
-  private _getPenWidth(width: any): number {
-    return !width || typeof width !== 'number' || isNaN(width) || width <= 0
-      ? 6
-      : width
-  }
-
-  /**
    * 绘制圆形
    *
    * @private
@@ -384,7 +787,7 @@ class DrawingBoard {
    * @param {string} [color='red'] 画笔颜色
    * @memberof DrawingBoard
    */
-  private _drawCircle(x: number, y: number, radius = 3, color = 'red') {
+  private _drawCircle(x: number, y: number, radius = 3, color = 'red'): void {
     if (!this.ctx) return
     this.ctx.save()
 
@@ -416,7 +819,7 @@ class DrawingBoard {
     y2: number,
     width = 6,
     color = 'red'
-  ) {
+  ): void {
     if (!this.ctx) return
     this.ctx.save()
 
@@ -431,34 +834,6 @@ class DrawingBoard {
     this.ctx.stroke()
 
     this.ctx.restore()
-  }
-
-  /**
-   * 获取事件相对触发对象的偏移值
-   *
-   * @private
-   * @param {(MouseEvent | TouchEvent)} e 事件对象
-   * @returns {Point} 坐标
-   * @memberof DrawingBoard
-   */
-  private _getPointOffset(e: MouseEvent | TouchEvent): Point {
-    if (e instanceof MouseEvent) {
-      return {
-        x: e.offsetX,
-        y: e.offsetY
-      }
-    } else {
-      const { touches, target } = e
-      if (target == null) throw new Error(MSG_EVENT_TARGET_NOT_FOUNT)
-
-      const { clientX, clientY } = touches[0]
-      const { left, top } = (target as Element).getBoundingClientRect()
-
-      return {
-        x: clientX - left,
-        y: clientY - top
-      }
-    }
   }
 
   /**
@@ -592,7 +967,7 @@ class DrawingBoard {
    * @returns void
    * @memberof DrawingBoard
    */
-  private _handlePointerEnd = (e: MouseEvent | TouchEvent): void => {
+  private _handlePointerEnd = (): void => {
     console.log('_handlePointerEnd')
 
     if (this.penMode === 'empty') return
@@ -659,351 +1034,6 @@ class DrawingBoard {
   }
 
   /**
-   * 设置canvas transform
-   *
-   * @private
-   * @param {number} x 横轴
-   * @param {number} y 纵轴
-   * @param {number} scale 缩放比例
-   * @param {boolean} [transition=false] 过渡动画
-   * @memberof DrawingBoard
-   */
-  private _setCanvasTransform(
-    x: number,
-    y: number,
-    scale: number,
-    transition: boolean = false
-  ) {
-    if (!this.el) return
-
-    const text = `transform:scale(${scale}) translate3d(${x}px,${y}px,0);transform-origin:center;`
-    const cssText = transition ? text + 'transition:0.3s;' : text
-
-    this.el.setAttribute('style', cssText)
-  }
-
-  /**
-   * 保存当前画布状态
-   *
-   * @private
-   * @param {PEN_MODE} [type='paint'] 类型(绘制paint、清空clear) 默认paint
-   * @param {number} paintCount 绘制次数
-   * @param {ImageData} imageData 像素数据
-   * @memberof DrawingBoard
-   */
-  private _saveImageData(
-    type = 'paint',
-    paintCount: number,
-    imageData: ImageData
-  ) {
-    if (
-      !['paint', 'clear'].includes(type) ||
-      paintCount == null ||
-      !imageData ||
-      !(imageData instanceof ImageData)
-    ) {
-      return
-    }
-
-    if (this.revokeStack.length >= this.MAX_REVOKE_STEPS) {
-      this.revokeStack.shift()
-    }
-
-    // 保存类型及绘制次数(撤销时使用)
-    this.revokeStack.push({ type, paintCount, imageData })
-
-    this.onRevokeStackChange &&
-      typeof this.onRevokeStackChange === 'function' &&
-      this.onRevokeStackChange(this.revokeStack)
-
-    console.log('_saveImageData onRevokeStackChange', this.revokeStack)
-  }
-
-  /**
-   * 生成事件映射列表
-   *
-   * @private
-   * @returns {EventItem[]} 事件映射列表
-   * @memberof DrawingBoard
-   */
-  private _makeEventList(): EventItem[] {
-    return [
-      {
-        pointerType: 'mouse',
-        action: 'start',
-        name: 'mousedown',
-        handler: this._handlePointerStart
-      },
-      {
-        pointerType: 'mouse',
-        action: 'move',
-        name: 'mousemove',
-        handler: this._handlePointerMove
-      },
-      {
-        pointerType: 'mouse',
-        action: 'end',
-        name: 'mouseup',
-        handler: this._handlePointerEnd
-      },
-      {
-        pointerType: 'mouse',
-        action: 'leave',
-        name: 'mouseleave',
-        handler: this._handlePointerLeave
-      },
-      {
-        pointerType: 'touch',
-        action: 'start',
-        name: 'touchstart',
-        handler: this._handlePointerStart
-      },
-      {
-        pointerType: 'touch',
-        action: 'move',
-        name: 'touchmove',
-        handler: this._handlePointerMove
-      },
-      {
-        pointerType: 'touch',
-        action: 'end',
-        name: 'touchend',
-        handler: this._handlePointerEnd
-      },
-      {
-        pointerType: 'touch',
-        action: 'cancel',
-        name: 'touchcancel',
-        handler: this._handlePointerCancel
-      }
-    ]
-  }
-
-  /**
-   * 获取合法的交互模式
-   *
-   * @private
-   * @param {*} mode 模式字符串
-   * @returns {PEN_MODE} 模式字符串
-   * @memberof DrawingBoard
-   */
-  private _getInteractiveMode(mode: any): INTERACTIVE_MODE {
-    return DrawingBoard.INTERACTIVE_MODE_ENUM.includes(mode) ? mode : 'mouse'
-  }
-
-  /**
-   * 获取合法的画笔模式
-   *
-   * @private
-   * @param {*} mode 模式字符串
-   * @returns {PEN_MODE} 画笔模式
-   * @memberof DrawingBoard
-   */
-  private _getPenMode(mode: any): PEN_MODE {
-    return DrawingBoard.PEN_MODE_ENUM.includes(mode) ? mode : 'empty'
-  }
-
-  /**
-   * 获取container容器
-   *
-   * @private
-   * @param {(HTMLElement | string)} container 选择器或el
-   * @returns container容器el
-   * @memberof DrawingBoard
-   */
-  private _getContainer(container: HTMLElement | string): HTMLElement {
-    if (container instanceof HTMLElement) return container
-
-    const el = $(container)
-    if (el == null) {
-      throw new Error(MSG_CONTAINER_NOT_FOUND)
-    } else {
-      return el
-    }
-  }
-
-  /**
-   * 设置canvas dom尺寸
-   *
-   * @private
-   * @param {number[]} [width, height] 宽高数组
-   * @memberof DrawingBoard
-   */
-  private _setDOMSize([width, height]: number[]): void {
-    if (width != null && this.el) this.el.width = width
-    if (height != null && this.el) this.el.height = height
-  }
-
-  /**
-   * 获取合法的最大撤销步数
-   *
-   * @private
-   * @param {number} steps steps 步数
-   * @returns {number} 合法的最大撤销步数
-   * @memberof DrawingBoard
-   */
-  private _getLawfulMaxRevokeSteps(steps: number): number {
-    if (steps <= 0 || typeof steps !== 'number' || isNaN(steps))
-      return DrawingBoard.LIMIT_MIN_REVOKE_STEPS
-
-    if (steps > DrawingBoard.LIMIT_MAX_REVOKE_STEPS)
-      return DrawingBoard.LIMIT_MAX_REVOKE_STEPS
-
-    return steps
-  }
-
-  /**
-   * 生成canvas元素
-   *
-   * @private
-   * @returns {HTMLCanvasElement} canvas DOM对象
-   * @memberof DrawingBoard
-   */
-  private _makeCanvas(): HTMLCanvasElement {
-    return document.createElement('canvas')
-  }
-
-  /**
-   * 获取绘图上下文
-   *
-   * @private
-   * @returns {CanvasRenderingContext2D} 2d上下文
-   * @memberof DrawingBoard
-   */
-  private _getCtx(): CanvasRenderingContext2D {
-    const ctx = this.el && this.el.getContext && this.el.getContext('2d')
-    if (ctx == null) throw new Error(MSG_CTX_CANT_GET)
-
-    return ctx
-  }
-
-  /**
-   * 获取模式对应的指针类型
-   * @param {string} mode 模式
-   * @returns 类型字符串
-   */
-  // TODO:此处需要返回值
-  private _getPointerType(mode: INTERACTIVE_MODE): EventPointerType {
-    if (mode === 'both') {
-      return 'touchAndMouse'
-    } else if (mode === 'touch') {
-      return 'touch'
-    } else {
-      return 'mouse'
-    }
-  }
-
-  /**
-   * 过滤出符合条件的EventItems
-   *
-   * @private
-   * @param {EventItemCondition} 过滤条件
-   * @returns {EventItem[]} EventItems数组
-   * @memberof DrawingBoard
-   */
-  private _getEventItems({
-    pointerType,
-    action
-  }: EventItemCondition): EventItem[] {
-    let filterFn: any
-
-    // pointerType不指定或为touchAndMouse时，只过滤action
-    if (!pointerType || pointerType === 'touchAndMouse') {
-      if (action) {
-        filterFn = (item: EventItem) => item.action === action
-      } else {
-        // pointerType、action都为空，则返回所有
-        return this.eventList
-      }
-    } else {
-      // pointerType存在并不为touchAndMouse时，需要同时过滤pointerType和action
-      if (action) {
-        filterFn = (item: EventItem) =>
-          item.pointerType === pointerType && item.action === action
-      } else {
-        filterFn = (item: EventItem) => item.pointerType === pointerType
-      }
-    }
-
-    return this.eventList.filter(filterFn)
-  }
-
-  /**
-   * 绑定当前模式对应动作的所有事件
-   * @param {String} action 动作
-   * @returns void
-   */
-  private _bindCurInteractiveModeEvents(action: EventAction): void {
-    if (!this.el) return
-
-    // TODO:此处需要处理_getPointerType的''
-    const pointerType = this._getPointerType(this.interactiveMode)
-
-    const condition: EventItemCondition = { pointerType, action }
-
-    this._cleanCurInteractiveModeEvents(condition)
-
-    this._bindEvent(condition)
-  }
-
-  /**
-   * 清除当前模式对应动作的所有事件
-   * @param {String} action 动作
-   * @returns void
-   */
-  private _cleanCurInteractiveModeEvents({ action }: EventItemCondition): void {
-    if (!this.el) return
-
-    const pointerType = this._getPointerType(this.interactiveMode)
-
-    const condition = { pointerType, action }
-
-    this._cleanEvent(condition)
-  }
-
-  /**
-   * 绑定符合特定条件的事件
-   * @param {Object} condition 过滤条件
-   * @returns void
-   */
-  private _bindEvent(condition: EventItemCondition = {}): void {
-    const eventItems = this._getEventItems(condition)
-    if (!eventItems || !eventItems.length) return
-
-    eventItems.forEach(({ name, handler }) => {
-      this.el && this.el.addEventListener(name, handler, false)
-    })
-  }
-
-  /**
-   * 清除符合特定条件的事件
-   * @param {Object} condition 过滤条件
-   * @returns void
-   */
-  private _cleanEvent(condition = {}) {
-    const eventItems = this._getEventItems(condition)
-    if (!eventItems || !eventItems.length) return
-
-    eventItems.forEach(
-      ({ name, handler }) =>
-        this.el && this.el.removeEventListener(name, handler, false)
-    )
-  }
-
-  /**
-   * 设置画笔模式
-   *
-   * @private
-   * @param {PEN_MODE} mode 画笔模式
-   * @memberof DrawingBoard
-   */
-  private _setPenMode(mode: PEN_MODE) {
-    if (!DrawingBoard.PEN_MODE_ENUM.includes(mode)) return
-
-    this.penMode = mode
-  }
-
-  /**
    * 处理缩放比例改变
    *
    * @private
@@ -1016,36 +1046,6 @@ class DrawingBoard {
       this.dragTransformX,
       this.dragTransformY,
       this.scale
-    )
-  }
-
-  /**
-   * 单步撤销
-   *
-   * @private
-   * @memberof DrawingBoard
-   */
-  private _revoke(): void {
-    if (!this.ctx || !this.revokeStack || !this.revokeStack.length) return
-
-    const {
-      imageData,
-      paintCount: afterRevokePaintCount
-    } = this.revokeStack.pop()
-
-    this.ctx.putImageData(imageData, 0, 0)
-
-    // 恢复绘制次数
-    this.paintCount = afterRevokePaintCount
-
-    this.onRevokeStackChange &&
-      typeof this.onRevokeStackChange === 'function' &&
-      this.onRevokeStackChange(this.revokeStack)
-
-    console.log(
-      '_revoke onRevokeStackChange',
-      this.revokeStack,
-      afterRevokePaintCount
     )
   }
 
@@ -1086,27 +1086,11 @@ class DrawingBoard {
   }
 
   /**
-   * 挂载
-   * @returns void
-   */
-  mount(): void {
-    if (!this.el) this.el = this._makeCanvas()
-    if (!this.ctx) this.ctx = this._getCtx()
-
-    this._setDOMSize([this.width, this.height])
-    this.setClassName(this.className)
-
-    this._bindCurInteractiveModeEvents('start')
-
-    this.container.appendChild(this.el)
-  }
-
-  /**
    * 设置画笔模式为绘制模式
    *
    * @memberof DrawingBoard
    */
-  setPenModePaint() {
+  setPenModePaint(): void {
     this._setPenMode('paint')
   }
 
@@ -1115,7 +1099,7 @@ class DrawingBoard {
    *
    * @memberof DrawingBoard
    */
-  setPenModeDrag() {
+  setPenModeDrag(): void {
     this._setPenMode('drag')
   }
 
@@ -1124,7 +1108,7 @@ class DrawingBoard {
    *
    * @memberof DrawingBoard
    */
-  setPenModeEmpty() {
+  setPenModeEmpty(): void {
     this._setPenMode('empty')
   }
 
@@ -1147,13 +1131,60 @@ class DrawingBoard {
   }
 
   /**
-   * 获取当前画面的绘制次数
+   * 挂载
+   * @returns void
+   */
+  mount(): void {
+    if (!this.el) this.el = this._makeCanvas()
+    if (!this.ctx) this.ctx = this._getCtx()
+
+    this._setDOMSize([this.width, this.height])
+    this.setClassName(this.className)
+
+    this._bindCurInteractiveModeEvents('start')
+
+    this.container.appendChild(this.el)
+  }
+
+  /**
+   * 销毁
    *
-   * @returns {number} 绘制次数
    * @memberof DrawingBoard
    */
-  getPaintCount(): number {
-    return this.paintCount
+  destory(): void {
+    this.el && this.container.removeChild(this.el)
+    this.el = null
+    this._bgImgObject = null
+  }
+
+  /**
+   * 清空绘制
+   * @returns void
+   */
+  clear(): void {
+    if (!this.ctx || !this.el) return
+
+    // 清空前保存状态
+    this._saveImageData(
+      'clear',
+      this.paintCount,
+      this.ctx.getImageData(0, 0, this.width, this.height)
+    )
+
+    this.ctx.clearRect(0, 0, this.width, this.height)
+
+    // 重置绘制次数
+    this.paintCount = 0
+
+    // 如果有背景图，则需要重新绘制背景图
+    this._bgImgObject &&
+      this._drawBg(
+        this._bgImgObject,
+        this.originalSize[0],
+        this.originalSize[1]
+      )
+
+    console.log('clear paintCount', this.paintCount)
   }
 
   /**
@@ -1191,47 +1222,6 @@ class DrawingBoard {
    */
   revoke(): void {
     this._revoke()
-  }
-
-  /**
-   * 清空绘制
-   * @returns void
-   */
-  clear(): void {
-    if (!this.ctx || !this.el) return
-
-    // 清空前保存状态
-    this._saveImageData(
-      'clear',
-      this.paintCount,
-      this.ctx.getImageData(0, 0, this.width, this.height)
-    )
-
-    this.ctx.clearRect(0, 0, this.width, this.height)
-
-    // 重置绘制次数
-    this.paintCount = 0
-
-    // 如果有背景图，则需要重新绘制背景图
-    this._bgImgObject &&
-      this._drawBg(
-        this._bgImgObject,
-        this.originalSize[0],
-        this.originalSize[1]
-      )
-
-    console.log('clear paintCount', this.paintCount)
-  }
-
-  /**
-   * 销毁
-   *
-   * @memberof DrawingBoard
-   */
-  destory(): void {
-    this.el && this.container.removeChild(this.el)
-    this.el = null
-    this._bgImgObject = null
   }
 
   /**
@@ -1281,6 +1271,53 @@ class DrawingBoard {
   }
 
   /**
+   * scale + 0.1
+   *
+   * @memberof DrawingBoard
+   */
+  makeScaleAddZeroPointOne(): void {
+    let newScale = this.scale + 0.1
+    this.setScale(newScale)
+  }
+
+  /**
+   * scale - 0.1
+   *
+   * @memberof DrawingBoard
+   */
+  makeScaleSubtractZeroPointOne(): void {
+    let newScale = this.scale - 0.1
+    this.setScale(newScale)
+  }
+
+  /**
+   * 重置缩放比例、位置
+   *
+   * @memberof DrawingBoard
+   */
+  reset(): void {
+    this.dragTransformX = this.dragTransformY = 0
+    this.scale = 1
+
+    this._setCanvasTransform(
+      this.dragTransformX,
+      this.dragTransformY,
+      this.scale,
+      true
+    )
+  }
+
+  /**
+   * 获取当前画面的绘制次数
+   *
+   * @returns {number} 绘制次数
+   * @memberof DrawingBoard
+   */
+  getPaintCount(): number {
+    return this.paintCount
+  }
+
+  /**
    * 获取dataURL
    *
    * @param {IMG_TYPE} [type='png'] 图片类型
@@ -1288,14 +1325,14 @@ class DrawingBoard {
    * @returns dataURL
    * @memberof DrawingBoard
    */
-  getDataUrl(type: IMG_TYPE = 'png', compressRate = 1) {
+  getDataUrl(type: IMG_TYPE = 'png', compressRate = 1): string {
     if (
       !this.el ||
       !DrawingBoard.IMG_TYPE_ENUM.includes(type) ||
       typeof compressRate !== 'number' ||
       isNaN(compressRate)
     ) {
-      return
+      throw new Error(MSG_DATAURL_CANT_GEN)
     }
 
     if (compressRate < 0.3) compressRate = 0.3
@@ -1400,43 +1437,6 @@ class DrawingBoard {
         timer = null
       }, 200)
     }
-  }
-
-  /**
-   * scale + 0.1
-   *
-   * @memberof DrawingBoard
-   */
-  makeScaleAddZeroPointOne(): void {
-    let newScale = this.scale + 0.1
-    this.setScale(newScale)
-  }
-
-  /**
-   * scale - 0.1
-   *
-   * @memberof DrawingBoard
-   */
-  makeScaleSubtractZeroPointOne(): void {
-    let newScale = this.scale - 0.1
-    this.setScale(newScale)
-  }
-
-  /**
-   * 重置缩放比例、位置
-   *
-   * @memberof DrawingBoard
-   */
-  reset(): void {
-    this.dragTransformX = this.dragTransformY = 0
-    this.scale = 1
-
-    this._setCanvasTransform(
-      this.dragTransformX,
-      this.dragTransformY,
-      this.scale,
-      true
-    )
   }
 }
 

@@ -18,3 +18,5 @@ export const MSG_EVENT_TARGET_NOT_FOUNT = 'target无法获取'
 export const MSG_BG_URL_NOT_LAWFUL = '请传入合法的url'
 
 export const MSG_BLOB_CANT_GEN = '生成blob错误'
+
+export const MSG_DATAURL_CANT_GEN = '生成dataURL错误'
