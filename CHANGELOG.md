@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.4](https://github.com/BryanAdamss/drawing-board/compare/v1.2.3...v1.2.4) (2019-11-18)
+
+
+### Bug Fixes
+
+* **main:** 修复移动设备上缩放时，绘图位置错误 ([124c839](https://github.com/BryanAdamss/drawing-board/commit/124c839))
+* **main:** 调整注释 ([5b20f25](https://github.com/BryanAdamss/drawing-board/commit/5b20f25))
+
 ### [1.2.3](https://github.com/BryanAdamss/drawing-board/compare/v1.2.2...v1.2.3) (2019-10-30)
 
 
