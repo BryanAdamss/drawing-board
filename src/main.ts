@@ -201,8 +201,15 @@ class DrawingBoard {
 
     this.paintCount = 0 // 记录绘制次数
 
-    this.minScale = minScale || DrawingBoard.LIMIT_MIN_SCALE
-    this.maxScale = maxScale || DrawingBoard.LIMIT_MAX_SCALE
+    // 限制最小、最大缩放比例
+    this.minScale =
+      typeof minScale !== 'number' || minScale < 0.1
+        ? DrawingBoard.LIMIT_MIN_SCALE
+        : minScale
+    this.maxScale =
+      typeof maxScale !== 'number' || maxScale < 0.1
+        ? DrawingBoard.LIMIT_MAX_SCALE
+        : maxScale
 
     this.scale = DrawingBoard.DEFAULT_SCALE // 设置当前缩放比例为默认缩放比例
     if (this.container) this.container.style.overflow = 'hidden' // 设置容器溢出隐藏，防止缩放展示出现异常
@@ -339,10 +346,10 @@ class DrawingBoard {
       const { clientX, clientY } = touches[0]
       const { left, top } = (target as Element).getBoundingClientRect()
 
-      return {
-        x: clientX - left,
-        y: clientY - top
-      }
+      const x = Math.floor((clientX - left) / this.scale)
+      const y = Math.floor((clientY - top) / this.scale)
+
+      return { x, y }
     }
   }
 
@@ -593,7 +600,6 @@ class DrawingBoard {
   private _bindCurInteractiveModeEvents(action: EventAction): void {
     if (!this.el) return
 
-    // TODO:此处需要处理_getPointerType的''
     const pointerType = this._getPointerType(this.interactiveMode)
 
     const condition: EventItemCondition = { pointerType, action }
@@ -868,6 +874,8 @@ class DrawingBoard {
     this.isPainting = true
 
     this.lastPaintPoint = this._getPointOffset(e)
+
+    console.log('handlePaintStart this.lastPaintPoint', e, this.lastPaintPoint)
 
     // 绘制前保存状态
     this.ctx &&
