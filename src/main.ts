@@ -851,7 +851,7 @@ class DrawingBoard {
    * @memberof DrawingBoard
    */
   private _handlePointerStart = (e: MouseEvent | TouchEvent): void => {
-    console.log('_handlePointerStart')
+    console.log('_handlePointerStart', e.type)
     if (this.penMode === 'empty') return
 
     if (this.penMode === 'paint') this._handlePaintStart(e)
