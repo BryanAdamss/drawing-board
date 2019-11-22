@@ -46,7 +46,7 @@ board.download()
 ## API
 DrawingBoard(selector,options)
 
-- `selector` is required
+- `selector` is **required**
 - `options`
 ```javascript
 // 默认参数
