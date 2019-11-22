@@ -1,6 +1,6 @@
 {
   "name": "@bryanadamss/drawing-board",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "canvas绘图板，提供绘制、撤销、旋转、下载等功能",
   "main": "dist/drawing-board.umd.js",
   "module": "dist/drawing-board.esm.js",
@@ -16,7 +16,8 @@
     "release": "standard-version",
     "release:first": "npm run release --first-release",
     "publish2Npm": "git push --follow-tags origin master && npm publish --access=public",
-    "commit": "git-cz"
+    "commit": "git-cz",
+    "pub": "sh release.sh"
   },
   "repository": {
     "type": "git",
