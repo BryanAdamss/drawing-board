@@ -48,7 +48,7 @@ export default {
     commonjs(),
     // 压缩，应该使用在production模式
     // 移除comments
-    minify({ comments: false }),
+    minify({ comments: false, removeConsole: true, removeDebugger: true }),
     sourceMaps()
   ],
   external: [
