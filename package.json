@@ -7,14 +7,14 @@
   "unpkg": "dist/drawing-board.umd.js",
   "scripts": {
     "clean": "shx rm -rf dist/*",
-    "prepublishOnly": "npm run build",
     "prebuild": "npm run clean",
     "build": "rollup --config rollup.config.js",
     "release": "standard-version",
     "release:first": "npm run release --first-release",
+    "prepublishOnly": "npm run build",
     "publish2Remote": "git push --follow-tags origin master && npm publish --access=public",
-    "commit": "git-cz",
-    "pub": "sh release.sh"
+    "pub": "sh release.sh",
+    "commit": "git-cz"
   },
   "repository": {
     "type": "git",
