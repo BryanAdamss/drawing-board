@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/BryanAdamss/drawing-board/compare/v1.3.0...v1.4.0) (2019-12-04)
+
+
+### Features
+
+* **all:** 添加dev模式 ([d237dd7](https://github.com/BryanAdamss/drawing-board/commit/d237dd7))
+
 ## [1.3.0](https://github.com/BryanAdamss/drawing-board/compare/v1.2.5...v1.3.0) (2019-12-02)
 
 
