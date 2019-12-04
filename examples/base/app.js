@@ -1,4 +1,4 @@
-import DrawingBoard from '../dist/drawing-board.esm.js'
+import DrawingBoard from '../../dist/drawing-board.esm'
 
 function $(selector) {
   return document.querySelector(selector)
