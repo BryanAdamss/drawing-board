@@ -49,9 +49,16 @@ board.download()
 
 - https://github.com/BryanAdamss/drawing-board/tree/master/examples
 
+or
+
+- `clone this repo`
+- `npm i`
+- `npm run dev`
+- open `localhost:8080`
+
 ## API
 
-DrawingBoard(selector,options)
+`new DrawingBoard(selector,options)`
 
 - `selector` is **required**
 - `options`
