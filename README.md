@@ -3,75 +3,85 @@
 > 🎨 Javascript drawing board based on canvas
 
 ---
+
 ![NPM](https://img.shields.io/npm/l/@bryanadamss/drawing-board)
 [![GitHub issues](https://img.shields.io/github/issues/BryanAdamss/drawing-board)](https://github.com/BryanAdamss/drawing-board/issues)
-
 
 ## Links
 
 [https://github.com/BryanAdamss/drawing-board](https://github.com/BryanAdamss/drawing-board)
 
 ## Install
+
 ```javascript
 npm i @bryanadamss/drawing-board
 ```
+
 or
+
 ```javascript
 <script src="https://unpkg.com/@bryanadamss/drawing-board@latest/dist/drawing-board.umd.js"></script>
 ```
 
 ## Example
+
 ```html
 <div id="board"></div>
 ```
+
 ```javascript
 import DrawingBoard from '@bryanadamss/drawing-board'
 
-const options={
-  size:[400,300],
-  penWidth:10
+const options = {
+  size: [400, 300],
+  penWidth: 10
 }
 
-const board=new DrawingBoard('#board',options)
+const board = new DrawingBoard('#board', options)
 
-const base64=board.getDataUrl()
+const base64 = board.getDataUrl()
 
 board.rotate()
 board.download()
 ```
 
 ## Demos
+
 - https://github.com/BryanAdamss/drawing-board/tree/master/examples
 
 ## API
+
 DrawingBoard(selector,options)
 
 - `selector` is **required**
 - `options`
+
 ```javascript
 // 默认参数
-defaultOptions={
-    size: [], // canvas尺寸
-    className: '', // 自定义样式类
-    manualMount: false, // 手动挂载
-    maxRevokeSteps: 10, // 最大回退步数
-    interactiveMode: 'mouse', // 交互模式 enum:['mouse','touch','both'] ,both将同时绑定mouse、touch事件(PointerEvent存在兼容性问题，放弃使用)
-    penColor: 'red', // 画笔颜色
-    penWidth: 6, // 画笔粗细
-    bgImgURL: '', // 背景图url或base64
-    bgImgRotate: 0, // 背景图旋转角度
-    bgColor: '#fff', // 背景色
-    onRevokeStackChange: null, // 撤销栈改变时的回调
-    onPaintEnd: null, // 绘制一笔结束的回调
-    penMode: 'empty', // 画笔模式
-    minScale: 1, // 最小缩放比例
-    maxScale: 3 // 最大缩放比例
+defaultOptions = {
+  size: [], // canvas尺寸
+  className: '', // 自定义样式类
+  manualMount: false, // 手动挂载
+  maxRevokeSteps: 10, // 最大回退步数
+  interactiveMode: 'mouse', // 交互模式 enum:['mouse','touch','both'] ,both将同时绑定mouse、touch事件(PointerEvent存在兼容性问题，放弃使用)
+  penColor: 'red', // 画笔颜色
+  penWidth: 6, // 画笔粗细
+  bgImgURL: '', // 背景图url或base64
+  bgImgRotate: 0, // 背景图旋转角度
+  bgColor: '#fff', // 背景色
+  onRevokeStackChange: null, // 撤销栈改变时的回调
+  onPaintEnd: null, // 绘制一笔结束的回调
+  penMode: 'empty', // 画笔模式
+  minScale: 1, // 最小缩放比例
+  maxScale: 3 // 最大缩放比例
 }
 ```
+
 - `methods`
+
 ```typescript
-  
-  
+
+
   /**
    * 设置画笔样式(粗细、颜色)
    *
@@ -251,7 +261,6 @@ defaultOptions={
   ): void {}
 ```
 
-
 ## Changelog
 
 [changelog](https://github.com/BryanAdamss/drawing-board/blob/master/CHANGELOG.md)
@@ -259,8 +268,7 @@ defaultOptions={
 Detailed changes for each release are documented in the [release notes](https://github.com/BryanAdamss/drawing-board/releases).
 
 ## License
+
 [MIT](https://opensource.org/licenses/MIT)
 
 Copyright (c) 2019-present, bryanadamss GuangHui.
-
-
