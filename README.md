@@ -51,7 +51,7 @@ board.download()
 
 or
 
-- `clone this repo`
+- `clone` this `repo`
 - `npm i`
 - `npm run dev`
 - open `localhost:8080`
