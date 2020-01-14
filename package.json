@@ -15,7 +15,9 @@
     "publish2Remote": "git push --follow-tags origin master && npm publish --access=public",
     "pub": "sh release.sh",
     "commit": "git-cz",
-    "dev": "node examples/server.js"
+    "dev": "node examples/server.js",
+    "useTbOrigin": "nrm use taobal",
+    "useNpmOrigin": "nrm use npm"
   },
   "repository": {
     "type": "git",
@@ -37,6 +39,7 @@
     "core-js": "^3.2.1",
     "cz-conventional-changelog": "^3.0.2",
     "express": "^4.17.1",
+    "nrm": "^1.2.1",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-babel-minify": "^9.0.0",
