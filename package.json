@@ -16,7 +16,7 @@
     "pub": "sh release.sh",
     "commit": "git-cz",
     "dev": "node examples/server.js",
-    "useTbOrigin": "nrm use taobal",
+    "useTbOrigin": "nrm use taobao",
     "useNpmOrigin": "nrm use npm"
   },
   "repository": {
