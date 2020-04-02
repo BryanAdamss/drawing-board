@@ -45,8 +45,8 @@ function handleSetPenWidth(e) {
   drawingBoard.setPenStyle({ width })
 }
 
-function handleRotate() {
-  drawingBoard.rotate()
+function handleRotate(dir) {
+  drawingBoard.rotate(dir)
 }
 
 function handleBigBtnClick() {
@@ -105,7 +105,12 @@ $('#download').onclick = handleDownload
 $('#getDataUrl').onclick = handleGetDataUrl
 $('#getBlob').onclick = handleGetBlob
 $('#getFile').onclick = handleGetFile
-$('#rotate').onclick = handleRotate
+$('#rotate').onclick = function() {
+  handleRotate(1)
+}
+$('#revertRotate').onclick = function() {
+  handleRotate(-1)
+}
 
 $('#color').onchange = handleSetPenColor
 $('#width').onchange = handleSetPenWidth
