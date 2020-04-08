@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.4](https://github.com/BryanAdamss/drawing-board/compare/v1.5.3...v1.5.4) (2020-04-08)
+
+
+### Bug Fixes
+
+* **all:** 修复initial字段书写错误(少一个i) :( ([76715c4](https://github.com/BryanAdamss/drawing-board/commit/76715c4))
+
 ### [1.5.3](https://github.com/BryanAdamss/drawing-board/compare/v1.5.2...v1.5.3) (2020-04-08)
 
 ### [1.5.2](https://github.com/BryanAdamss/drawing-board/compare/v1.5.1...v1.5.2) (2020-04-08)
