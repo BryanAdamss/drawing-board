@@ -13,9 +13,10 @@ declare class DrawingBoard {
     static LIMIT_MIN_REVOKE_STEPS: number;
     static LIMIT_MAX_REVOKE_STEPS: number;
     static LIMIT_MIN_SCALE: number;
-    static LIMIT_MAX_SCALE: number;
     static DEFAULT_SCALE: number;
+    static DEFAULT_MAX_SCALE: number;
     private static _defaultOptions;
+    originalOptions: Options;
     options: Options;
     container: HTMLElement;
     el: HTMLCanvasElement | null;
@@ -44,9 +45,12 @@ declare class DrawingBoard {
     onRevokeStackChange: any;
     onPaintEnd: any;
     paintCount: number;
+    scaleTransition: boolean;
     minScale: number;
     maxScale: number;
+    initalScale: number;
     scale: number;
+    scaleStep: number;
     ctx: CanvasRenderingContext2D | null;
     /**
      * Creates an instance of DrawingBoard.
@@ -56,6 +60,33 @@ declare class DrawingBoard {
      * @memberof DrawingBoard
      */
     constructor(container: HTMLElement | string, options: Options);
+    /**
+     * 获取合法的缩放值
+     *
+     * @private
+     * @param {*} scale 缩放值
+     * @returns {number} 合法的缩放值
+     * @memberof DrawingBoard
+     */
+    private _getLawfulScale;
+    /**
+     * 获取合法的最小缩放值
+     *
+     * @private
+     * @param {*} scale 缩放值
+     * @returns {number} 合法的最小缩放值
+     * @memberof DrawingBoard
+     */
+    private _getLawfulMinScale;
+    /**
+     * 获取合法的最大缩放值
+     *
+     * @private
+     * @param {*} scale 缩放值
+     * @returns {number} 合法的最大缩放值
+     * @memberof DrawingBoard
+     */
+    private _getLawfulMaxScale;
     /**
      * 获取合法的交互模式
      *
@@ -454,17 +485,17 @@ declare class DrawingBoard {
      */
     setBgImg(urlOrObject: CanvasImageSource | string, originalWidth: number, originalHeight: number): void;
     /**
-     * scale + 0.1
+     * 放大scale
      *
      * @memberof DrawingBoard
      */
-    makeScaleAddZeroPointOne(): void;
+    makeScaleAdd(): void;
     /**
-     * scale - 0.1
+     * 缩小scale
      *
      * @memberof DrawingBoard
      */
-    makeScaleSubtractZeroPointOne(): void;
+    makeScaleSubtract(): void;
     /**
      * 重置缩放比例、位置
      *

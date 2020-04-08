@@ -66,21 +66,34 @@ or
 ```javascript
 // 默认参数
 defaultOptions = {
-  size: [], // canvas尺寸
+  size: [], // canvas尺寸，默认[300,150]
   className: '', // 自定义样式类
+
   manualMount: false, // 手动挂载
+
   maxRevokeSteps: 10, // 最大回退步数
+
   interactiveMode: 'mouse', // 交互模式 enum:['mouse','touch','both'] ,both将同时绑定mouse、touch事件(PointerEvent存在兼容性问题，放弃使用)
+
+  penMode: 'empty', // 'paint' | 'drag' | 'empty' 画笔模式
+
   penColor: 'red', // 画笔颜色
   penWidth: 6, // 画笔粗细
+
   bgImgURL: '', // 背景图url或base64
   bgImgRotate: 0, // 背景图旋转角度
   bgColor: '#fff', // 背景色
+
   onRevokeStackChange: null, // 撤销栈改变时的回调
   onPaintEnd: null, // 绘制一笔结束的回调
-  penMode: 'empty', // 画笔模式
+
   minScale: 1, // 最小缩放比例
-  maxScale: 3 // 最大缩放比例
+  maxScale: 3, // 最大缩放比例
+
+  initalScale: 1, // 初始缩放比例
+
+  scaleTransition: true, // 是否开启缩放动画
+  scaleStep: 0.1, // 缩放步进值
 }
 ```
 

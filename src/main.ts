@@ -13,7 +13,7 @@ import {
   PenStyle,
   EventAction,
   EventPointerType,
-  EventItemCondition
+  EventItemCondition,
 } from './types/drawing-board'
 
 import { IeCompatibleBlob } from './types/blob'
@@ -31,7 +31,7 @@ import {
   MSG_EVENT_TARGET_NOT_FOUNT,
   MSG_BG_URL_NOT_LAWFUL,
   MSG_BLOB_CANT_GEN,
-  MSG_DATAURL_CANT_GEN
+  MSG_DATAURL_CANT_GEN,
 } from './libs/err-msg'
 
 class DrawingBoard {
@@ -45,29 +45,45 @@ class DrawingBoard {
   static LIMIT_MIN_REVOKE_STEPS = 10 // 最大撤销步数 下限值
   static LIMIT_MAX_REVOKE_STEPS = 50 // 最大撤销步数 上限值
 
-  static LIMIT_MIN_SCALE = 0.5 // 最小缩放值
-  static LIMIT_MAX_SCALE = 3 // 最大缩放值
+  static LIMIT_MIN_SCALE = 0.1 // 最小缩放值，最小需做限制，最大无需限制
 
   static DEFAULT_SCALE = 1 // 默认缩放值
+  static DEFAULT_MAX_SCALE = 5 // 默认最大缩放值
 
   private static _defaultOptions: Options = {
-    size: [], // canvas尺寸
+    size: [], // canvas尺寸，默认[300,150]
     className: '', // 自定义样式类
+
     manualMount: false, // 手动挂载
+
     maxRevokeSteps: 10, // 最大回退步数
+
     interactiveMode: 'mouse', // 交互模式 enum:['mouse','touch','both'] ,both将同时绑定mouse、touch事件(PointerEvent存在兼容性问题，放弃使用)
+
+    penMode: 'empty', // 'paint' | 'drag' | 'empty' 画笔模式
+
     penColor: 'red', // 画笔颜色
     penWidth: 6, // 画笔粗细
+
     bgImgURL: '', // 背景图url或base64
     bgImgRotate: 0, // 背景图旋转角度
     bgColor: '#fff', // 背景色
+
     onRevokeStackChange: null, // 撤销栈改变时的回调
     onPaintEnd: null, // 绘制一笔结束的回调
-    penMode: 'empty', // 画笔模式
+
     minScale: 1, // 最小缩放比例
-    maxScale: 3 // 最大缩放比例
+    maxScale: 3, // 最大缩放比例
+
+    initalScale: 1, // 初始缩放比例
+
+    scaleTransition: true, // 是否开启缩放动画
+    scaleStep: 0.1, // 缩放步进值
   }
-  options: Options
+
+  originalOptions: Options // 原始选项
+
+  options: Options // 合并后的选项
 
   container: HTMLElement
   el: HTMLCanvasElement | null
@@ -109,10 +125,15 @@ class DrawingBoard {
 
   paintCount: number // 绘制次数
 
+  scaleTransition: boolean // 缩放动画
+
   minScale: number // 最小缩放值
   maxScale: number // 最大缩放值
 
+  initalScale: number // 初始缩放值
   scale: number // 当前缩放值
+
+  scaleStep: number // 缩放步进值
 
   ctx: CanvasRenderingContext2D | null // 绘图上下文
 
@@ -128,9 +149,11 @@ class DrawingBoard {
 
     this.container = this._getContainer(container)
 
+    this.originalOptions = options
+
     this.options = {
       ...DrawingBoard._defaultOptions,
-      ...options
+      ...options,
     }
 
     const {
@@ -148,7 +171,10 @@ class DrawingBoard {
       onPaintEnd,
       penMode,
       minScale,
-      maxScale
+      maxScale,
+      initalScale,
+      scaleTransition,
+      scaleStep,
     } = this.options
 
     // 尺寸未传，则使用容器的尺寸
@@ -159,7 +185,7 @@ class DrawingBoard {
 
     this.setSize([
       width == null ? DrawingBoard.DEFAULT_WIDTH : width,
-      height == null ? DrawingBoard.DEFAULT_HEIGHT : height
+      height == null ? DrawingBoard.DEFAULT_HEIGHT : height,
     ])
 
     this.manualMount = !!manualMount
@@ -201,23 +227,86 @@ class DrawingBoard {
 
     this.paintCount = 0 // 记录绘制次数
 
-    // 限制最小、最大缩放比例
-    this.minScale =
-      typeof minScale !== 'number' || minScale < 0.1
-        ? DrawingBoard.LIMIT_MIN_SCALE
-        : minScale
-    this.maxScale =
-      typeof maxScale !== 'number' || maxScale < 0.1
-        ? DrawingBoard.LIMIT_MAX_SCALE
-        : maxScale
+    this.scaleTransition = !!scaleTransition // 缩放动画
 
-    this.scale = DrawingBoard.DEFAULT_SCALE // 设置当前缩放比例为默认缩放比例
+    this.scaleStep =
+      typeof scaleStep !== 'number' || isNaN(scaleStep) ? 0.1 : scaleStep
+
+    // 限制最小、最大缩放比例
+    this.minScale = this._getLawfulMinScale(minScale)
+    this.maxScale = this._getLawfulMaxScale(maxScale)
+
+    this.initalScale = this._getLawfulScale(initalScale) // 获取合法初始缩放值
+
+    this.scale = this.initalScale // 获取合法的缩放值
+    // 下一循环，等待mount后，设置缩放
+    setTimeout(() => {
+      this._handleScaleChange()
+    }, 0)
+
     if (this.container) this.container.style.overflow = 'hidden' // 设置容器溢出隐藏，防止缩放展示出现异常
 
     this.el = null
     this.ctx = null
 
     if (!this.manualMount) this.mount() // 不需要手动挂载时，自动挂载
+  }
+
+  /**
+   * 获取合法的缩放值
+   *
+   * @private
+   * @param {*} scale 缩放值
+   * @returns {number} 合法的缩放值
+   * @memberof DrawingBoard
+   */
+  private _getLawfulScale(scale: any): number {
+    if (typeof scale !== 'number' || isNaN(scale))
+      return DrawingBoard.DEFAULT_SCALE
+
+    if (scale < this.minScale) return this.minScale
+
+    if (scale > this.maxScale) return this.maxScale
+
+    return scale
+  }
+
+  /**
+   * 获取合法的最小缩放值
+   *
+   * @private
+   * @param {*} scale 缩放值
+   * @returns {number} 合法的最小缩放值
+   * @memberof DrawingBoard
+   */
+  private _getLawfulMinScale(scale: any): number {
+    if (
+      typeof scale !== 'number' ||
+      isNaN(scale) ||
+      scale < DrawingBoard.LIMIT_MIN_SCALE
+    )
+      return DrawingBoard.LIMIT_MIN_SCALE
+
+    return scale
+  }
+
+  /**
+   * 获取合法的最大缩放值
+   *
+   * @private
+   * @param {*} scale 缩放值
+   * @returns {number} 合法的最大缩放值
+   * @memberof DrawingBoard
+   */
+  private _getLawfulMaxScale(scale: any): number {
+    if (
+      typeof scale !== 'number' ||
+      isNaN(scale) ||
+      scale < DrawingBoard.LIMIT_MIN_SCALE
+    )
+      return DrawingBoard.DEFAULT_MAX_SCALE
+
+    return scale
   }
 
   /**
@@ -337,7 +426,7 @@ class DrawingBoard {
     if (e instanceof MouseEvent) {
       return {
         x: e.offsetX,
-        y: e.offsetY
+        y: e.offsetY,
       }
     } else {
       const { touches, target } = e
@@ -399,50 +488,50 @@ class DrawingBoard {
         pointerType: 'mouse',
         action: 'start',
         name: 'mousedown',
-        handler: this._handlePointerStart
+        handler: this._handlePointerStart,
       },
       {
         pointerType: 'mouse',
         action: 'move',
         name: 'mousemove',
-        handler: this._handlePointerMove
+        handler: this._handlePointerMove,
       },
       {
         pointerType: 'mouse',
         action: 'end',
         name: 'mouseup',
-        handler: this._handlePointerEnd
+        handler: this._handlePointerEnd,
       },
       {
         pointerType: 'mouse',
         action: 'leave',
         name: 'mouseleave',
-        handler: this._handlePointerLeave
+        handler: this._handlePointerLeave,
       },
       {
         pointerType: 'touch',
         action: 'start',
         name: 'touchstart',
-        handler: this._handlePointerStart
+        handler: this._handlePointerStart,
       },
       {
         pointerType: 'touch',
         action: 'move',
         name: 'touchmove',
-        handler: this._handlePointerMove
+        handler: this._handlePointerMove,
       },
       {
         pointerType: 'touch',
         action: 'end',
         name: 'touchend',
-        handler: this._handlePointerEnd
+        handler: this._handlePointerEnd,
       },
       {
         pointerType: 'touch',
         action: 'cancel',
         name: 'touchcancel',
-        handler: this._handlePointerCancel
-      }
+        handler: this._handlePointerCancel,
+      },
     ]
   }
 
@@ -456,7 +545,7 @@ class DrawingBoard {
    */
   private _getEventItems({
     pointerType,
-    action
+    action,
   }: EventItemCondition): EventItem[] {
     let filterFn: any
 
@@ -664,7 +753,7 @@ class DrawingBoard {
 
     const {
       imageData,
-      paintCount: afterRevokePaintCount
+      paintCount: afterRevokePaintCount,
     } = this.revokeStack.pop()
 
     this.ctx.putImageData(imageData, 0, 0)
@@ -692,14 +781,14 @@ class DrawingBoard {
    */
   private _getImgAndDraw(bgImgURL: string): void {
     getImageFromURL(bgImgURL)
-      .then(image => {
+      .then((image) => {
         this._bgImgObject = image
         // 保留原始尺寸，方便旋转时使用
         this.originalSize = [image.width, image.height]
         // TODO:此处存在异步问题，drawBg内部会使用ctx
         this._drawBg(image, this.originalSize[0], this.originalSize[1])
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err)
         this._bgImgObject = null
       })
@@ -1053,7 +1142,8 @@ class DrawingBoard {
     this._setCanvasTransform(
       this.dragTransformX,
       this.dragTransformY,
-      this.scale
+      this.scale,
+      this.scaleTransition
     )
   }
 
@@ -1128,12 +1218,9 @@ class DrawingBoard {
    */
   setScale(scale: any): void {
     let s = parseFloat(scale)
-    if (isNaN(s) || this.scale === s) return
+    if (isNaN(s) || s === this.scale) return
 
-    if (s < this.minScale) s = this.minScale
-    if (s > this.maxScale) s = this.maxScale
-
-    this.scale = s
+    this.scale = this._getLawfulScale(scale)
 
     this._handleScaleChange()
   }
@@ -1250,16 +1337,16 @@ class DrawingBoard {
       // 从url中获取图片对象
       if (/^(http[s]?)|(data:image)/.test(urlOrObject)) {
         getImageFromURL(urlOrObject)
-          .then(image => {
+          .then((image) => {
             this._bgImgObject = image
             this.originalSize = [
               originalWidth || image.width,
-              originalHeight || image.height
+              originalHeight || image.height,
             ]
 
             this._drawBg(image, this.originalSize[0], this.originalSize[1])
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err)
             this._bgImgObject = null
           })
@@ -1271,7 +1358,7 @@ class DrawingBoard {
       if (urlOrObject !== this._bgImgObject) this._bgImgObject = urlOrObject
       this.originalSize = [
         originalWidth || this.width,
-        originalHeight || this.height
+        originalHeight || this.height,
       ]
 
       this._drawBg(urlOrObject, this.originalSize[0], this.originalSize[1])
@@ -1279,22 +1366,22 @@ class DrawingBoard {
   }
 
   /**
-   * scale + 0.1
+   * 放大scale
    *
    * @memberof DrawingBoard
    */
-  makeScaleAddZeroPointOne(): void {
-    let newScale = this.scale + 0.1
+  makeScaleAdd(): void {
+    let newScale = this.scale + this.scaleStep
     this.setScale(newScale)
   }
 
   /**
-   * scale - 0.1
+   * 缩小scale
    *
    * @memberof DrawingBoard
    */
-  makeScaleSubtractZeroPointOne(): void {
-    let newScale = this.scale - 0.1
+  makeScaleSubtract(): void {
+    const newScale = this.scale - this.scaleStep
     this.setScale(newScale)
   }
 
@@ -1305,13 +1392,14 @@ class DrawingBoard {
    */
   reset(): void {
     this.dragTransformX = this.dragTransformY = 0
-    this.scale = 1
+
+    this.scale = this.initalScale
 
     this._setCanvasTransform(
       this.dragTransformX,
       this.dragTransformY,
       this.scale,
-      true
+      this.scaleTransition
     )
   }
 
@@ -1377,7 +1465,7 @@ class DrawingBoard {
     return new Promise((resolve, reject) => {
       this.el &&
         this.el.toBlob(
-          blob => {
+          (blob) => {
             if (blob != null) resolve(blob)
           },
           resourceType,
@@ -1400,7 +1488,9 @@ class DrawingBoard {
     type: IMG_TYPE = 'png',
     compressRate = 1
   ): Promise<File | IeCompatibleBlob> {
-    return this.getBlob(type, compressRate).then(blob => blob2File(blob, name))
+    return this.getBlob(type, compressRate).then((blob) =>
+      blob2File(blob, name)
+    )
   }
 
   /**

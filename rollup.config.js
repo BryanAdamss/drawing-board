@@ -27,13 +27,13 @@ export default {
       format: 'umd',
       // umd模式需要指定name
       name: GLOBAL_NAME,
-      sourcemap: true
+      sourcemap: true,
     },
     {
       file: pkg.module,
       format: 'es',
-      sourcemap: true
-    }
+      sourcemap: true,
+    },
   ],
   plugins: [
     json(),
@@ -42,18 +42,18 @@ export default {
     // 正常情况,resolve，commonjs应该在第一第二位置
     // 但此库使用了es6 class的类属性提案，commonjs无法解析，需要使用@babel/plugin-proposal-class-properties；所以将babel提前到首位
     babel({
-      exclude: 'node_modules/**'
+      exclude: 'node_modules/**',
     }),
     resolve(),
     commonjs(),
     // 压缩，应该使用在production模式
     // 移除comments
     minify({ comments: false, removeConsole: true, removeDebugger: true }),
-    sourceMaps()
+    sourceMaps(),
   ],
   external: [
     // 配置额外库
     ...Object.keys(pkg.dependencies || {}),
-    ...Object.keys(pkg.peerDependencies || {})
-  ]
+    ...Object.keys(pkg.peerDependencies || {}),
+  ],
 }
