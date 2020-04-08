@@ -98,7 +98,7 @@ window.drawingBoard = new DrawingBoard('#board', {
     console.log('onPaintEnd回调', paintCount)
   },
 
-  initalScale: 0.5,
+  initialScale: 0.5,
   minScale: 0.1,
   maxScale: 100,
   scaleStep: 0.2,

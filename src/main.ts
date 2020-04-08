@@ -75,7 +75,7 @@ class DrawingBoard {
     minScale: 1, // 最小缩放比例
     maxScale: 3, // 最大缩放比例
 
-    initalScale: 1, // 初始缩放比例
+    initialScale: 1, // 初始缩放比例
 
     scaleTransition: true, // 是否开启缩放动画
     scaleStep: 0.1, // 缩放步进值
@@ -130,7 +130,7 @@ class DrawingBoard {
   minScale: number // 最小缩放值
   maxScale: number // 最大缩放值
 
-  initalScale: number // 初始缩放值
+  initialScale: number // 初始缩放值
   scale: number // 当前缩放值
 
   scaleStep: number // 缩放步进值
@@ -172,7 +172,7 @@ class DrawingBoard {
       penMode,
       minScale,
       maxScale,
-      initalScale,
+      initialScale,
       scaleTransition,
       scaleStep,
     } = this.options
@@ -236,9 +236,9 @@ class DrawingBoard {
     this.minScale = this._getLawfulMinScale(minScale)
     this.maxScale = this._getLawfulMaxScale(maxScale)
 
-    this.initalScale = this._getLawfulScale(initalScale) // 获取合法初始缩放值
+    this.initialScale = this._getLawfulScale(initialScale) // 获取合法初始缩放值
 
-    this.scale = this.initalScale // 获取合法的缩放值
+    this.scale = this.initialScale // 获取合法的缩放值
     // 下一循环，等待mount后，设置缩放
     setTimeout(() => {
       this._handleScaleChange()
@@ -1393,7 +1393,7 @@ class DrawingBoard {
   reset(): void {
     this.dragTransformX = this.dragTransformY = 0
 
-    this.scale = this.initalScale
+    this.scale = this.initialScale
 
     this._setCanvasTransform(
       this.dragTransformX,

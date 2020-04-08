@@ -34,7 +34,7 @@ import DrawingBoard from '@bryanadamss/drawing-board'
 
 const options = {
   size: [400, 300],
-  penWidth: 10
+  penWidth: 10,
 }
 
 const board = new DrawingBoard('#board', options)
@@ -90,7 +90,7 @@ defaultOptions = {
   minScale: 1, // 最小缩放比例
   maxScale: 3, // 最大缩放比例
 
-  initalScale: 1, // 初始缩放比例
+  initialScale: 1, // 初始缩放比例
 
   scaleTransition: true, // 是否开启缩放动画
   scaleStep: 0.1, // 缩放步进值

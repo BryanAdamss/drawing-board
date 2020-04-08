@@ -23,7 +23,7 @@ export interface Options {
   penMode?: PEN_MODE // 画笔模式
   minScale?: number // 最小缩放比例
   maxScale?: number // 最大缩放比例
-  initalScale?: number // 初始缩放比例
+  initialScale?: number // 初始缩放比例
   scaleTransition?: boolean // 缩放动画
   scaleStep?: number // 缩放步进值
 }
