@@ -485,13 +485,13 @@ declare class DrawingBoard {
      */
     setBgImg(urlOrObject: CanvasImageSource | string, originalWidth: number, originalHeight: number): void;
     /**
-     * 放大scale
+     * scale + scaleStep
      *
      * @memberof DrawingBoard
      */
     makeScaleAdd(): void;
     /**
-     * 缩小scale
+     * scale - scaleStep
      *
      * @memberof DrawingBoard
      */
