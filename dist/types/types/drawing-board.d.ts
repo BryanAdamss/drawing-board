@@ -21,7 +21,7 @@ export interface Options {
     penMode?: PEN_MODE;
     minScale?: number;
     maxScale?: number;
-    initalScale?: number;
+    initialScale?: number;
     scaleTransition?: boolean;
     scaleStep?: number;
 }

@@ -48,7 +48,7 @@ declare class DrawingBoard {
     scaleTransition: boolean;
     minScale: number;
     maxScale: number;
-    initalScale: number;
+    initialScale: number;
     scale: number;
     scaleStep: number;
     ctx: CanvasRenderingContext2D | null;
