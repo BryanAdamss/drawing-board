@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/BryanAdamss/drawing-board/compare/v1.4.5...v1.5.0) (2020-04-08)
+
+
+### Features
+
+* **all:** 新增支持设置初始缩放比例、缩放动画、缩放步进 ([1a47b47](https://github.com/BryanAdamss/drawing-board/commit/1a47b47))
+
 ### [1.4.5](https://github.com/BryanAdamss/drawing-board/compare/v1.4.4...v1.4.5) (2020-04-02)
 
 ### [1.4.4](https://github.com/BryanAdamss/drawing-board/compare/v1.4.3...v1.4.4) (2020-01-14)
