@@ -203,18 +203,18 @@ defaultOptions = {
   ): void {}
 
   /**
-   * scale + 0.1
+   * scale + scaleStep
    *
    * @memberof DrawingBoard
    */
-  makeScaleAddZeroPointOne(): void {}
+  makeScaleAdd(): void {}
 
   /**
-   * scale - 0.1
+   * scale - scaleStep
    *
    * @memberof DrawingBoard
    */
-  makeScaleSubtractZeroPointOne(): void {}
+  makeScaleSubtract(): void {}
 
   /**
    * 重置缩放比例、位置

@@ -1366,7 +1366,7 @@ class DrawingBoard {
   }
 
   /**
-   * 放大scale
+   * scale + scaleStep
    *
    * @memberof DrawingBoard
    */
@@ -1376,7 +1376,7 @@ class DrawingBoard {
   }
 
   /**
-   * 缩小scale
+   * scale - scaleStep
    *
    * @memberof DrawingBoard
    */
