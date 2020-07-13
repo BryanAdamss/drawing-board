@@ -49,7 +49,7 @@
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-typescript2": "^0.24.3",
     "shx": "^0.3.2",
-    "standard-version": "^7.0.0",
+    "standard-version": "^8.0.1",
     "typescript": "^3.6.4",
     "webpack": "^4.41.2",
     "webpack-dev-middleware": "^3.7.2",
