@@ -1434,7 +1434,10 @@ class DrawingBoard {
     if (compressRate < 0.3) compressRate = 0.3
     if (compressRate > 1) compressRate = 1
 
-    const resourceType = `image/${type}`
+    // ! toDataURL不支持image/jpg类型，若不支持，其会转为image/png
+    // ! 在特定情况下，会使图片体积变大
+    // ! 正确的应该是image/jpeg
+    const resourceType = `image/${type === 'jpg' ? 'jpeg' : type}`
 
     return this.el.toDataURL(resourceType, compressRate)
   }

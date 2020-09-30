@@ -15,7 +15,7 @@
     "publish2Remote": "git push --follow-tags origin master && npm publish --access=public",
     "pub": "sh release.sh",
     "commit": "git-cz",
-    "dev": "node examples/server.js",
+    "dev": "npm run build && node examples/server.js",
     "useTbOrigin": "nrm use taobao",
     "useNpmOrigin": "nrm use npm"
   },
