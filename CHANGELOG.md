@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.5.6](https://github.com/BryanAdamss/drawing-board/compare/v1.5.5...v1.5.6) (2020-09-30)
+
+
+### Bug Fixes
+
+* **size:** 修复jpg图片转base64后体积变大的问题 ([b128eff](https://github.com/BryanAdamss/drawing-board/commit/b128eff))
+
 ### [1.5.5](https://github.com/BryanAdamss/drawing-board/compare/v1.5.4...v1.5.5) (2020-04-08)
 
 ### [1.5.4](https://github.com/BryanAdamss/drawing-board/compare/v1.5.3...v1.5.4) (2020-04-08)
