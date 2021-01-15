@@ -15,7 +15,6 @@ import {
   EventPointerType,
   EventItemCondition,
 } from './types/drawing-board'
-
 import { IeCompatibleBlob } from './types/blob'
 
 import { blob2File } from './libs/file-convert'
@@ -34,6 +33,7 @@ import {
   MSG_DATAURL_CANT_GEN,
 } from './libs/err-msg'
 
+import { getOffsetPosition } from './libs/touch-offset'
 class DrawingBoard {
   static INTERACTIVE_MODE_ENUM: INTERACTIVE_MODE[] = ['mouse', 'touch', 'both'] // 支持的交互模式枚举
   static IMG_TYPE_ENUM: IMG_TYPE[] = ['jpg', 'jpeg', 'png', 'webp'] // 支持的图片类型枚举
@@ -178,7 +178,7 @@ class DrawingBoard {
     } = this.options
 
     // 尺寸未传，则使用容器的尺寸
-    const [width, height] = size
+    const [width, height] = size || []
 
     this.width = DrawingBoard.DEFAULT_WIDTH
     this.height = DrawingBoard.DEFAULT_HEIGHT
@@ -429,15 +429,23 @@ class DrawingBoard {
         y: e.offsetY,
       }
     } else {
-      const { touches, target } = e
-      if (target == null) throw new Error(MSG_EVENT_TARGET_NOT_FOUNT)
+      // console.log(e)
+      // const { touches, target } = e
+      // if (target == null) throw new Error(MSG_EVENT_TARGET_NOT_FOUNT)
 
-      const { clientX, clientY } = touches[0]
-      const { left, top } = (target as Element).getBoundingClientRect()
+      // const { clientX, clientY } = touches[0]
+      // const { left, top } = (target as Element).getBoundingClientRect()
 
-      const x = Math.floor((clientX - left) / this.scale)
-      const y = Math.floor((clientY - top) / this.scale)
+      // const x = Math.floor((clientX - left) / this.scale)
+      // const y = Math.floor((clientY - top) / this.scale)
 
+      // return { x, y }
+
+      const { touches } = e
+      const { pageX, pageY } = touches[0]
+      const { x, y } = getOffsetPosition(pageX, pageY, this.el)
+
+      console.log('{ x, y }', { x, y })
       return { x, y }
     }
   }
