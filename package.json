@@ -5,6 +5,9 @@
   "main": "dist/drawing-board.umd.js",
   "module": "dist/drawing-board.esm.js",
   "unpkg": "dist/drawing-board.umd.js",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "clean": "shx rm -rf dist/*",
     "prebuild": "npm run clean",
