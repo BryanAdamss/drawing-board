@@ -1,5 +1,12 @@
 import { ones, inv, multiply } from 'mathjs'
 
+/**
+ * 模拟鼠标的offsetX(考虑了transform rotate的情况)
+ * @param x 坐标x
+ * @param y 坐标y
+ * @param elOrCache 节点或缓存
+ * @returns touch.offsetX
+ */
 export function getOffsetPosition(x: number, y: number, elOrCache: any) {
   function getVertexPosition(el: any) {
     let currentTarget = el
@@ -92,4 +99,35 @@ export function getOffsetPosition(x: number, y: number, elOrCache: any) {
   }
   let pos = computPosition(data)
   return { x: pos.x, y: pos.y, data }
+}
+
+/**
+ * 获取父节点的滚动距离
+ * @param target HTMLElement 节点
+ * @returns 父元素滚动距离
+ */
+export function getScroll(target: HTMLElement) {
+  let parentScrollTop = 0
+  let parentScrollLeft = 0
+
+  let curTarget = <HTMLElement>(<HTMLElement>target).parentElement
+  while (curTarget !== null) {
+    parentScrollTop += curTarget.scrollTop
+    parentScrollLeft += curTarget.scrollLeft
+
+    if (getComputedStyle(curTarget).position === 'fixed') {
+      console.log('fixed', curTarget)
+      return {
+        parentScrollTop,
+        parentScrollLeft,
+      }
+    }
+
+    curTarget = <HTMLElement>curTarget.parentElement
+  }
+
+  return {
+    parentScrollTop,
+    parentScrollLeft,
+  }
 }

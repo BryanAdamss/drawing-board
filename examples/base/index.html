@@ -9,6 +9,15 @@
       #board {
         outline: 1px solid blue;
       }
+
+      .c-DrawingBoardTest.is-scroll {
+        height: 3000px;
+      }
+
+      .c-DrawingBoardTest.is-scroll #board {
+        position: fixed;
+        bottom: 0px;
+      }
     </style>
   </head>
   <body>
@@ -31,6 +40,8 @@
       <button id="empty">重置画笔模式</button>
 
       <button id="reset">恢复初始状态</button>
+
+      <button id="scroll">测试fixed模式/有滚动条时的绘制情况</button>
 
       <hr />
       <input type="color" id="color" value="#ff0000" />

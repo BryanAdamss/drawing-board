@@ -33,7 +33,8 @@ import {
   MSG_DATAURL_CANT_GEN,
 } from './libs/err-msg'
 
-import { getOffsetPosition } from './libs/touch-offset'
+import { getOffsetPosition, getScroll } from './libs/touch-offset'
+
 class DrawingBoard {
   static INTERACTIVE_MODE_ENUM: INTERACTIVE_MODE[] = ['mouse', 'touch', 'both'] // 支持的交互模式枚举
   static IMG_TYPE_ENUM: IMG_TYPE[] = ['jpg', 'jpeg', 'png', 'webp'] // 支持的图片类型枚举
@@ -429,23 +430,19 @@ class DrawingBoard {
         y: e.offsetY,
       }
     } else {
-      // console.log(e)
-      // const { touches, target } = e
-      // if (target == null) throw new Error(MSG_EVENT_TARGET_NOT_FOUNT)
-
-      // const { clientX, clientY } = touches[0]
-      // const { left, top } = (target as Element).getBoundingClientRect()
-
-      // const x = Math.floor((clientX - left) / this.scale)
-      // const y = Math.floor((clientY - top) / this.scale)
-
-      // return { x, y }
-
       const { touches } = e
-      const { pageX, pageY } = touches[0]
-      const { x, y } = getOffsetPosition(pageX, pageY, this.el)
+      const { clientX, clientY } = touches[0]
+      // 获取滚动距离来计算绘画位置
+      const { parentScrollTop, parentScrollLeft } = getScroll(
+        <HTMLElement>e.target
+      )
 
-      console.log('{ x, y }', { x, y })
+      const { x, y } = getOffsetPosition(
+        clientX + parentScrollLeft,
+        clientY + parentScrollTop,
+        this.el
+      )
+
       return { x, y }
     }
   }
@@ -731,7 +728,7 @@ class DrawingBoard {
     if (!eventItems || !eventItems.length) return
 
     eventItems.forEach(({ name, handler }) => {
-      this.el && this.el.addEventListener(name, handler, false)
+      this.el && this.el.addEventListener(name, handler, true)
     })
   }
 
@@ -746,7 +743,7 @@ class DrawingBoard {
 
     eventItems.forEach(
       ({ name, handler }) =>
-        this.el && this.el.removeEventListener(name, handler, false)
+        this.el && this.el.removeEventListener(name, handler, true)
     )
   }
 
